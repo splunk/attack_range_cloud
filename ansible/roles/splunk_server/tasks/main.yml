@@ -1,0 +1,19 @@
+---
+# This playbook contains common tasks in this role
+
+- include: splunk.yml
+- include: configure_indexes.yml
+- include: configure_web_conf.yml
+- include: configure_server_conf.yml
+- include: configure_hec.yml
+- include: install_enterprise_security.yml
+- include: install_aws_app.yml
+- include: install_app_from_s3.yml
+  with_items:
+    - "{{ splunk_asx_app }}"
+    - "{{ splunk_cim_app }}"
+    - "{{ splunk_escu_app }}"
+    - "{{ splunk_python_app }}"
+    - "{{ splunk_mltk_app }}"
+    - "{{ splunk_security_essentials_app }}"
+- include: configure_escu.yml

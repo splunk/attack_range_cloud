@@ -1,0 +1,10 @@
+- hosts: all
+  gather_facts: False
+  become: true
+  vars:
+    hostname: splunk-server
+  roles:
+    - linux_common
+    - splunk_server
+    - splunk_phantom
+    - splunk_phantom_configure
