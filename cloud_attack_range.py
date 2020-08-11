@@ -20,7 +20,13 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume'],
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume allowed")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
-                        help="comma delimited list of MITRE ATT&CK technique ID to simulate in the attack_range, example: T1117, T1118, requires --simulation flag")
+                        help=" MITRE ATT&CK technique ID to simulate in the attack_range, example: T1098, requires action simulate")
+    parser.add_argument("-sf", "--simulation_file", required=False, type=str, default="",
+                        help="path to simulation file, e.g. leonidas/definitions/persistence/create_iam_group.yml")
+    parser.add_argument("-sv", "--simulation_vars", required=False, type=str, default="",
+                        help="comma separated list of simulation vars, --simulation_vars 'user=test, password=test'")
+    parser.add_argument("-f", "--force", required=False, default=False, action="store_true",
+                        help="directly run the attack without popup")
     parser.add_argument("-c", "--config", required=False, default="cloud_attack_range.conf",
                         help="path to the configuration file of the attack range")
     parser.add_argument("-lm", "--list_machines", required=False, default=False, action="store_true", help="prints out all available machines")
@@ -32,8 +38,12 @@ if __name__ == "__main__":
     ARG_VERSION = args.version
     action = args.action
     config = args.config
-    simulation_techniques = args.simulation_technique
+    simulation_technique = args.simulation_technique
+    simulation_file = args.simulation_file
     list_machines = args.list_machines
+    force = args.force
+    simulation_vars = args.simulation_vars
+
 
     print("""
 starting program loaded for B1 battle droid
@@ -94,7 +104,7 @@ starting program loaded for B1 battle droid
         controller.resume()
 
     if action == 'simulate':
-        controller.simulate(target, simulation_techniques, simulation_atomics)
+        controller.simulate(simulation_technique, simulation_file, force, simulation_vars)
 
     if action == 'test':
         controller.test(test_file)

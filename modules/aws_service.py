@@ -36,7 +36,7 @@ def get_all_instances(config):
             if instance['State']['Name']!='terminated':
                 if len(instance['Tags']) > 0:
                     str = instance['Tags'][0]['Value']
-                    if str.startswith('attack-range'):
+                    if str.startswith('cloud-attack-range'):
                         instances.append(instance)
 
     return instances
@@ -45,7 +45,7 @@ def get_all_instances(config):
 def get_splunk_instance_ip(config):
     all_instances = get_all_instances(config)
     for instance in all_instances:
-        if instance['Tags'][0]['Value'] == 'attack-range-splunk-server':
+        if instance['Tags'][0]['Value'] == 'cloud-attack-range-splunk-server':
             return instance['NetworkInterfaces'][0]['PrivateIpAddresses'][0]['Association']['PublicIp']
 
 
@@ -83,49 +83,3 @@ def change_ec2_state(instances, new_state, log):
                     InstanceIds=[instance['InstanceId']]
                 )
                 log.info('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
-
-
-def deregister_images(images, config, log):
-    client = boto3.client('ec2')
-
-    for image in images:
-        response = client.describe_images(
-            Filters=[
-                {
-                    'Name': 'name',
-                    'Values': [
-                        str("packer-" + image + "-" + config['key_name']),
-                    ]
-                }
-            ]
-        )
-        if len(response['Images']):
-            image_obj = response['Images'][0]
-            client.deregister_image(ImageId=image_obj['ImageId'])
-            log.info('Successfully deregistered AMI ' +  image_obj['Name'] +  ' with AMI ID ' + image_obj['ImageId'] + ' .')
-        else:
-            log.info('Didn\'t find AMI: ' +  str("packer-" + image + "-" + config['key_name']) + ' .')
-
-
-def get_apigateway_endpoint(config):
-    client = boto3.client('apigateway')
-    response = client.get_rest_apis()
-    for item in response['items']:
-        if item['name'] == str('api_gateway_' + config['key_name']):
-            return item, 0
-
-    return 'error', 1
-
-
-def upload_file_s3_bucket(file_name, results, test_file, isArchive):
-
-    s3_client = boto3.client('s3')
-    if isArchive:
-        response = s3_client.upload_file(file_name, 'attack-range-attack-data', str(test_file['simulation_technique'] + '/attack_data.tar.gz'))
-    else:
-        response = s3_client.upload_file(file_name, 'attack-range-attack-data', str(test_file['simulation_technique'] + '/attack_data.json'))
-
-    with open('tmp/test_results.yml', 'w') as f:
-        yaml.dump(results, f)
-    response2 = s3_client.upload_file('tmp/test_results.yml', 'attack-range-automated-testing', str(test_file['simulation_technique'] + '/test_results.yml'))
-    os.remove('tmp/test_results.yml')

@@ -7,6 +7,8 @@ import yaml
 import time
 import tarfile
 import os
+import sys
+from jinja2 import Environment, BaseLoader
 
 
 class TerraformController():
@@ -50,8 +52,59 @@ class TerraformController():
         aws_service.change_ec2_state(instances, 'running', self.log)
 
 
-    def simulate(self, target, simulation_techniques, simulation_atomics, var_str = 'no'):
-        pass
+    def simulate(self, simulation_technique, simulation_file, force, simulation_vars):
+
+        # read definition files from Leonidas
+        # search for technique or name
+        # run command with subsitution of variables
+
+        filelist = []
+        objects = []
+
+        if simulation_technique:
+            path ="leonidas/definitions"
+
+            for root, dirs, files in os.walk(path):
+                for file in files:
+                    if os.path.splitext(file)[1] == ".yml":
+                        filepath = os.path.join(root,file)
+                        object = self.load_file(filepath)
+                        for technique in object['mitre_ids']:
+                            if technique == simulation_technique:
+                                filelist.append(filepath)
+                                objects.append(object)
+
+            if not filelist:
+                self.log.error('ERROR: No attack file found for given technique')
+                sys.exit(1)
+
+        elif simulation_file:
+            filelist.append(simulation_file)
+            object = self.load_file(simulation_file)
+            objects.append(object)
+
+        for object in objects:
+            data = dict()
+            if simulation_vars:
+                data = dict(item.split("=") for item in simulation_vars.split(", "))
+            else:
+                for var in object['input_arguments']:
+                    data[var] = object['input_arguments'][var]['value']
+
+            rtemplate = Environment(loader=BaseLoader()).from_string(object['executors']['sh']['code'])
+            function_call = rtemplate.render(**data)
+            print(function_call)
+            if force:
+                stream = os.popen(function_call)
+                output = stream.read()
+                print(output)
+            else:
+                if self.query_yes_no('Run attack command? [default=Y]') or force:
+                    stream = os.popen(function_call)
+                    output = stream.read()
+                    print(output)
+                else:
+                    self.log.info('Attack is not executed.')
 
 
     def list_machines(self):
@@ -80,3 +133,47 @@ class TerraformController():
             print('Status Kubernetes\n')
             kubernetes_service.list_deployed_applications()
             print()
+
+## helper functions
+
+    def load_file(self, file_path):
+        with open(file_path, 'r') as stream:
+            try:
+                object = list(yaml.safe_load_all(stream))[0]
+            except yaml.YAMLError as exc:
+                print(exc)
+                sys.exit("ERROR: reading {0}".format(file_path))
+        return object
+
+
+    def query_yes_no(self, question, default="yes"):
+        """Ask a yes/no question via raw_input() and return their answer.
+
+        "question" is a string that is presented to the user.
+        "default" is the presumed answer if the user just hits <Enter>.
+            It must be "yes" (the default), "no" or None (meaning
+            an answer is required of the user).
+
+        The "answer" return value is True for "yes" or False for "no".
+        """
+        valid = {"yes": True, "y": True, "ye": True,
+                 "no": False, "n": False}
+        if default is None:
+            prompt = " [y/n] "
+        elif default == "yes":
+            prompt = " [Y/n] "
+        elif default == "no":
+            prompt = " [y/N] "
+        else:
+            raise ValueError("invalid default answer: '%s'" % default)
+
+        while True:
+            sys.stdout.write(question + prompt)
+            choice = input().lower()
+            if default is not None and choice == '':
+                return valid[default]
+            elif choice in valid:
+                return valid[choice]
+            else:
+                sys.stdout.write("Please respond with 'yes' or 'no' "
+                                 "(or 'y' or 'n').\n")

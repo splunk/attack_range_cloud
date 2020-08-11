@@ -100,7 +100,7 @@ resource "aws_instance" "splunk-server" {
     delete_on_termination = "true"
   }
   tags = {
-    Name = "attack-range-splunk-server"
+    Name = "cloud-attack-range-splunk-server"
   }
 
   provisioner "remote-exec" {
