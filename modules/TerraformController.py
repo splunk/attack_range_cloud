@@ -28,10 +28,10 @@ class TerraformController():
         if not return_code:
            self.log.info("attack_range has been built using terraform successfully")
 
-        if self.config["kubernetes"]=="1":
-            kubernetes_service.install_application(self.config, self.log)
+           if self.config["kubernetes"]=="1":
+               kubernetes_service.install_application(self.config, self.log)
 
-        self.list_machines()
+           self.list_machines()
 
 
     def destroy(self):

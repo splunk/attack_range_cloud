@@ -22,6 +22,7 @@ module "eks" {
   source       = "terraform-aws-modules/eks/aws"
   cluster_name = "kubernetes_${var.config.key_name}"
   subnets      = var.vpc_private_subnets
+  cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
 
   tags = {
     Environment = "training"

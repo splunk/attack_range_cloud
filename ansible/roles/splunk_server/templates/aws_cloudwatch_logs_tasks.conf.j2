@@ -1,0 +1,10 @@
+[aws]
+account = splunk_role_{{ key_name }}
+groups = aws/eks/kubernetes_{{ key_name }}/cluster
+delay = 1800
+index = aws
+interval = 120
+only_after = 1970-01-01T00:00:00
+region = {{ region }}
+sourcetype = aws:cloudwatchlogs
+stream_matcher = .*

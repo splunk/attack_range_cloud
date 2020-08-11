@@ -60,6 +60,18 @@ data "aws_iam_policy_document" "splunk_logging" {
 
   statement {
     actions = [
+      "logs:Describe*",
+      "logs:Get*",
+      "logs:FilterLogEvents",
+    ]
+
+    resources = [
+      "arn:aws:logs:*:log-group:/aws/eks/kubernetes_${var.config.key_name}/cluster",
+    ]
+  }
+
+  statement {
+    actions = [
       "sqs:GetQueueAttributes",
       "sqs:ListQueues",
       "sqs:ReceiveMessage",

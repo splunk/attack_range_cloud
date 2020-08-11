@@ -14,8 +14,10 @@ The Cloud Attack Range consists of:
 
 ### Logging
 The following log sources are collected from the machines:
-- Cloudtrail logs (```index = aws```)
-- Kubernetes logs (```index = kubernetes OR index = kubernetes-metrics```)
+- Cloudtrail logs (```index=aws```)
+- Kubernetes logs (```index=kubernetes```)
+- Kubernetes metrics (```index=kubernetes-metrics```)
+- AWS Elastic Kubernetes Service logs (```index=aws sourcetype=aws:cloudwatchlogs```)
 
 ## Running
 Follow [Getting Started](https://github.com/splunk/attack_range_cloud/wiki/Configure-Cloud-Attack-Range) to configure Cloud Attack Range.  
@@ -39,7 +41,7 @@ python cloud_attack_range.py -a simulate -st T1136.003
 ```
 - Perform Cloud Attack Simulation by Leonidas attack file
 ```
-python cloud_attack_range.py -a simulate -sf leonidas/definitions/persistence/add_api_key_to_iam_user.yml -sv "user=patrick-test"
+python cloud_attack_range.py -a simulate -sf leonidas/definitions/persistence/add_api_key_to_iam_user.yml"
 ```
 - Perform Cloud Attack Simulation by Leonidas attack file using custom variables and without prompt:
 ```
@@ -66,7 +68,6 @@ python cloud_attack_range.py -a resume
 
 ## Features
 - [Splunk Server](https://github.com/splunk/attack_range/wiki/Splunk-Server)
-  * Indexing of Microsoft Event Logs, PowerShell Logs, Sysmon Logs, DNS Logs, ...
   * Preconfigured with multiple TAs for field extractions
   * Out of the box Splunk detections with Enterprise Security Content Update ([ESCU](https://splunkbase.splunk.com/app/3449/)) App
   * Preinstalled Machine Learning Toolkit ([MLTK](https://splunkbase.splunk.com/app/2890/))
@@ -75,18 +76,18 @@ python cloud_attack_range.py -a resume
 
 - [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/)
   * [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) is a premium security solution requiring a paid license.
-  * Enable or disable [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) in [attack_range.conf](attack_range.conf)
+  * Enable or disable [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) in [cloud_attack_range.conf](cloud_attack_range.conf)
   * Purchase a license, download it and store it in the apps folder to use it.
 
 - [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
   * [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) is a Security Orchestration and Automation platform
   * For a free development license (100 actions per day) register [here](https://my.phantom.us/login/?next=/)
-  * Enable or disable [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [attack_range.conf](attack_range.conf)
+  * Enable or disable [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [cloud_attack_range.conf](cloud_attack_range.conf)
 
 - [Leonidas](https://github.com/FSecureLABS/leonidas)
   * Attack Simulation with [Leonidas](https://github.com/FSecureLABS/leonidas)
-  * Uses the cloud attack TTPs in [leonidas/definitions](leonidas/definitions)
-  * Leonidas uses the Cloud Attack Mitre IDs
+  * Uses the cloud attack TTPs in [leonidas/definitions](https://github.com/FSecureLABS/leonidas/tree/6701e9bbb76614a4ba2a360edd140eba9fdc647f/definitions)
+  * Leonidas uses [Cloud ATT&CK Mitre IDs](https://attack.mitre.org/matrices/enterprise/cloud/)
 
 
 ## Support
