@@ -18,6 +18,7 @@ The following log sources are collected from the machines:
 - Kubernetes logs (```index = kubernetes OR index = kubernetes-metrics```)
 
 ## Running
+Follow [Getting Started](https://github.com/splunk/attack_range_cloud/wiki/Configure-Cloud-Attack-Range) to configure Cloud Attack Range.  
 Cloud Attack Range supports different actions:
 - Build Cloud Attack Range
 - Perform Cloud Attack Simulation
