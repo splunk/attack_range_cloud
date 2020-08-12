@@ -66,7 +66,7 @@ data "aws_iam_policy_document" "splunk_logging" {
     ]
 
     resources = [
-      "arn:aws:logs:*:log-group:/aws/eks/kubernetes_${var.config.key_name}/cluster",
+      "arn:aws:logs:*:log-group:/aws/eks/kubernetes_${var.config.key_name}/cluster*",
     ]
   }
 
