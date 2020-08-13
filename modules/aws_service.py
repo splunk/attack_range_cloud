@@ -6,6 +6,9 @@ import uuid
 import time
 import yaml
 import os
+from datetime import datetime
+from datetime import timedelta
+
 
 def get_instance_by_name(ec2_name, config):
     instances = get_all_instances(config)
@@ -83,3 +86,71 @@ def change_ec2_state(instances, new_state, log):
                     InstanceIds=[instance['InstanceId']]
                 )
                 log.info('Successfully started instance with ID ' + instance['InstanceId'] + ' .')
+
+
+def download_S3_bucket(directory, bucket, local_dir, last_x_hours, regions):
+    client = boto3.client('s3')
+    resource = boto3.resource('s3')
+    download_dir(client, resource, directory, last_x_hours, regions, local_dir, bucket=bucket)
+
+
+def download_dir(client, resource, dist, last_x_hours, regions, local='/tmp', bucket='your_bucket'):
+    paginator = client.get_paginator('list_objects')
+    for result in paginator.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
+        if result.get('CommonPrefixes') is not None:
+            for subdir in result.get('CommonPrefixes'):
+                download_dir(client, resource, subdir.get('Prefix'), last_x_hours, regions, local, bucket)
+        for file in result.get('Contents', []):
+            dest_pathname = os.path.join(local, file.get('Key'))
+            for region in regions:
+                if file.get('Key').count(region):
+                    try:
+                        response = resource.meta.client.get_object(Bucket=bucket, Key=file.get('Key'), IfModifiedSince=(datetime.utcnow() - timedelta(hours=int(last_x_hours))))
+                        if not os.path.exists(os.path.dirname(dest_pathname)):
+                            os.makedirs(os.path.dirname(dest_pathname))
+                        resource.meta.client.download_file(bucket, file.get('Key'), dest_pathname)
+                    except:
+                        pass
+
+
+def upload_file_s3_bucket(s3_bucket, file_path, S3_file_path):
+    s3_client = boto3.client('s3')
+    response = s3_client.upload_file(file_path, s3_bucket, S3_file_path)
+
+
+def download_cloudwatch_logs(config, local_dir):
+    # Create an export task
+    # poll for completition
+    # download data from s3
+
+    client = boto3.client('logs')
+    response_export_task = client.create_export_task(
+        taskName='aws_eks_export_task',
+        logGroupName=str('/aws/eks/kubernetes_' + config['key_name'] + '/cluster'),
+        fromTime=int((datetime.utcnow() - timedelta(hours=int(config['eks_data_from_last_x_hours'])) - datetime(1970,1,1)).total_seconds() * 1000.0),
+        to=int((datetime.utcnow() - datetime(1970,1,1)).total_seconds() * 1000.0),
+        destination=config['s3_bucket_cloudwatch_eks_export'],
+        destinationPrefix='aws_eks_logs'
+    )
+
+    while True:
+        response = client.describe_export_tasks(taskId=response_export_task['taskId'])
+        if response['exportTasks'][0]['status']['code'] == 'COMPLETED':
+            break
+
+    client_s3 = boto3.client('s3')
+    resource_s3 = boto3.resource('s3')
+    download_dir_aws_eks(client_s3, resource_s3, 'aws_eks_logs', local=local_dir, bucket=config['s3_bucket_cloudwatch_eks_export'])
+
+
+def download_dir_aws_eks(client, resource, dist, local='/tmp', bucket='your_bucket'):
+    paginator = client.get_paginator('list_objects')
+    for result in paginator.paginate(Bucket=bucket, Delimiter='/', Prefix=dist):
+        if result.get('CommonPrefixes') is not None:
+            for subdir in result.get('CommonPrefixes'):
+                download_dir_aws_eks(client, resource, subdir.get('Prefix'), local, bucket)
+        for file in result.get('Contents', []):
+            dest_pathname = os.path.join(local, file.get('Key'))
+            if not os.path.exists(os.path.dirname(dest_pathname)):
+                os.makedirs(os.path.dirname(dest_pathname))
+            resource.meta.client.download_file(bucket, file.get('Key'), dest_pathname)

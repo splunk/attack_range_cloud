@@ -9,6 +9,8 @@ import tarfile
 import os
 import sys
 from jinja2 import Environment, BaseLoader
+import glob
+import pathlib
 
 
 class TerraformController():
@@ -134,6 +136,34 @@ class TerraformController():
             kubernetes_service.list_deployed_applications()
             print()
 
+
+    def dump(self, dump_name):
+        # download Cloudtrail logs from S3
+        # export Cloudwatch logs to S3 and then download them
+
+        folder = "attack_data/" + dump_name
+        os.mkdir(folder)
+
+        # Cloudtrail
+        if self.config['dump_cloudtrail_data'] == '1':
+            self.log.info("Dump Cloudtrail logs. This can take some time.")
+            aws_service.download_S3_bucket('AWSLogs', self.config['cloudtrail_s3_bucket'], folder, self.config['cloudtrail_data_from_last_x_hours'], self.config['cloudtrail_data_from_regions'].split(','))
+
+        # Cloudwatch
+        if self.config['dump_aws_eks_data'] == '1':
+            self.log.info("Dump AWS EKS logs from Cloudwatch. This can take some time.")
+            aws_service.download_cloudwatch_logs(self.config, folder)
+
+        # Sync to S3
+        if self.config['sync_to_s3_bucket'] == '1':
+            self.log.info("upload attack data to S3 bucket. This can take some time")
+            for file in self.getListOfFiles(folder):
+                self.log.info("upload file " + file  + " to S3 bucket.")
+                p = pathlib.Path(file)
+                new_path = str(pathlib.Path(*p.parts[1:]))
+                aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, new_path)
+
+
 ## helper functions
 
     def load_file(self, file_path):
@@ -177,3 +207,21 @@ class TerraformController():
             else:
                 sys.stdout.write("Please respond with 'yes' or 'no' "
                                  "(or 'y' or 'n').\n")
+
+
+    def getListOfFiles(self, dirName):
+        # create a list of file and sub directories
+        # names in the given directory
+        listOfFile = os.listdir(dirName)
+        allFiles = list()
+        # Iterate over all the entries
+        for entry in listOfFile:
+            # Create full path
+            fullPath = os.path.join(dirName, entry)
+            # If entry is a directory then get the list of files in this directory
+            if os.path.isdir(fullPath):
+                allFiles = allFiles + self.getListOfFiles(fullPath)
+            else:
+                allFiles.append(fullPath)
+
+        return allFiles

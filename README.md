@@ -27,6 +27,7 @@ Cloud Attack Range supports different actions:
 - Destroy Cloud Attack Range
 - Stop Cloud Attack Range
 - Resume Cloud Attack Range
+- Dump Log Data from Cloud Attack Range
 
 ### Build Cloud Attack Range
 - Build Cloud Attack Range
@@ -64,6 +65,12 @@ python cloud_attack_range.py -a stop
 - Resume Cloud Attack Range
 ```
 python cloud_attack_range.py -a resume
+```
+
+### Dump Log Data from Cloud Attack Range
+- Dump Log Data from Cloud Attack Range
+```
+python attack_range.py -a dump -dn data_dump
 ```
 
 ## Features

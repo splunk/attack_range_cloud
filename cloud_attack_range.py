@@ -17,7 +17,7 @@ VERSION = 1
 if __name__ == "__main__":
     # grab arguments
     parser = argparse.ArgumentParser(description="starts a cloud attack range ready to collect attack data into splunk")
-    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume'],
+    parser.add_argument("-a", "--action", required=True, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'dump'],
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume allowed")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                         help=" MITRE ATT&CK technique ID to simulate in the attack_range, example: T1098, requires action simulate")
@@ -27,6 +27,8 @@ if __name__ == "__main__":
                         help="comma separated list of simulation vars, --simulation_vars 'user=test, password=test'")
     parser.add_argument("-f", "--force", required=False, default=False, action="store_true",
                         help="directly run the attack without popup")
+    parser.add_argument("-dn", "--dump_name", required=False, default="",
+                        help="name for the dumped attack data")
     parser.add_argument("-c", "--config", required=False, default="cloud_attack_range.conf",
                         help="path to the configuration file of the attack range")
     parser.add_argument("-lm", "--list_machines", required=False, default=False, action="store_true", help="prints out all available machines")
@@ -43,6 +45,7 @@ if __name__ == "__main__":
     list_machines = args.list_machines
     force = args.force
     simulation_vars = args.simulation_vars
+    dump_name = args.dump_name
 
 
     print("""
@@ -83,7 +86,14 @@ starting program loaded for B1 battle droid
         log.info("version: {0}".format(VERSION))
         sys.exit(0)
 
-    # identfy not possible argument combination
+    # identfy not allowed argument combination
+    if action == "simulate" and (simulation_file == "" and simulation_technique == ""):
+        log.error("ERROR: action simulate need either flag --simulation_file or --simulation_technique")
+        sys.exit(1)
+
+    if action == "dump" and dump_name == ""):
+        log.error("ERROR: action dump need the flag --dump_name")
+        sys.exit(1)
 
     controller = TerraformController(config, log)
 
@@ -106,8 +116,8 @@ starting program loaded for B1 battle droid
     if action == 'simulate':
         controller.simulate(simulation_technique, simulation_file, force, simulation_vars)
 
-    if action == 'test':
-        controller.test(test_file)
+    if action == 'dump':
+        controller.dump(dump_name)
 
 
 # rnfgre rtt ol C4G12VPX
