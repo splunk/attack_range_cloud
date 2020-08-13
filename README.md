@@ -70,7 +70,7 @@ python cloud_attack_range.py -a resume
 ### Dump Log Data from Cloud Attack Range
 - Dump Log Data from Cloud Attack Range
 ```
-python attack_range.py -a dump -dn data_dump
+python cloud_attack_range.py -a dump -dn data_dump
 ```
 
 ## Features
