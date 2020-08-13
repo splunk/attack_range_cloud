@@ -17,7 +17,7 @@ VERSION = 1
 if __name__ == "__main__":
     # grab arguments
     parser = argparse.ArgumentParser(description="starts a cloud attack range ready to collect attack data into splunk")
-    parser.add_argument("-a", "--action", required=True, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'dump'],
+    parser.add_argument("-a", "--action", required=False, choices=['build', 'destroy', 'simulate', 'stop', 'resume', 'dump'], default="",
                         help="action to take on the range, defaults to \"build\", build/destroy/simulate/stop/resume allowed")
     parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                         help=" MITRE ATT&CK technique ID to simulate in the attack_range, example: T1098, requires action simulate")
@@ -91,9 +91,14 @@ starting program loaded for B1 battle droid
         log.error("ERROR: action simulate need either flag --simulation_file or --simulation_technique")
         sys.exit(1)
 
-    if action == "dump" and dump_name == ""):
+    if action == "dump" and dump_name == "":
         log.error("ERROR: action dump need the flag --dump_name")
         sys.exit(1)
+
+    if action == "" and not list_machines:
+        log.error('ERROR: flag --action is needed.')
+        sys.exit(1)
+
 
     controller = TerraformController(config, log)
 
