@@ -20,7 +20,7 @@ provider "kubernetes" {
 module "eks" {
   create_eks   = var.config.kubernetes
   source       = "terraform-aws-modules/eks/aws"
-  cluster_name = "kubernetes_${var.config.key_name}"
+  cluster_name = "${var.config.key_name}"
   subnets      = var.vpc_private_subnets
   cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
   cluster_version = var.config.cluster_version
