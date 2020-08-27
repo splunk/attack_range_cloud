@@ -103,8 +103,8 @@ starting program loaded for B1 battle droid
         log.error('ERROR: please change attack_range_password in attack_range.conf')
         sys.exit(1)
 
-    if len(config['key_name']) > 30:
-        log.error('ERROR: your key_name is too long. Please create a shorter key_name. Maximum number of characters are 31.')
+    if len(config['key_name']) > 20:
+        log.error('ERROR: your key_name is too long. Please create a shorter key_name. Maximum number of characters are 20.')
         sys.exit(1)
 
     controller = TerraformController(config, log)
