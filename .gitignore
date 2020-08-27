@@ -5,6 +5,9 @@ ansible/roles/*/files/splunk*.msi
 ansible/vars/vars.yml
 *.idea
 
+# conf
+cloud_attack_range.conf
+
 # apps folder
 apps/*
 !apps/.gitkeep

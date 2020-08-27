@@ -131,7 +131,7 @@ sqs_queue_url = https://sqs.us-west-2.amazonaws.com/591511147606/cloudtrail-clou
 
 
 [kubernetes]
-kubernetes = 1
+kubernetes = 0
 # specify if you want to build a kubernetes cluster or not
 
 cluster_version = 1.17

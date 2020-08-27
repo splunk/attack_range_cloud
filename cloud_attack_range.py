@@ -72,7 +72,7 @@ starting program loaded for B1 battle droid
         print("attack_range is using config at path {0}".format(attack_range_config))
         configpath = str(attack_range_config)
     else:
-        print("ERROR: attack_range failed to find a config file at {0} or {1}..exiting".format(attack_range_config))
+        print("ERROR: attack_range failed to find a config file")
         sys.exit(1)
 
     # Parse config
@@ -99,6 +99,9 @@ starting program loaded for B1 battle droid
         log.error('ERROR: flag --action is needed.')
         sys.exit(1)
 
+    if config['attack_range_password'] == 'I-l1ke-Attack-Range!':
+        log.error('ERROR: please change attack_range_password in attack_range.conf')
+        sys.exit(1)
 
     controller = TerraformController(config, log)
 

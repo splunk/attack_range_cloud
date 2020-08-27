@@ -15,13 +15,11 @@ def install_application(config, logger):
     helm_install_app_args = ['helm', 'install',  str("attack-range-" + config["app"]), str(config["repo_name"] + "/" + config["app"])]
     logging_call(helm_install_app_args, logger)
 
-    splunk_ip = aws_service.get_splunk_instance_ip(config)
-
     j2_env = Environment(loader=FileSystemLoader('kubernetes/templates'),
                          trim_blocks=True)
     template = j2_env.get_template('splunkk8s.j2')
     output_path = 'kubernetes/splunkk8s.yaml'
-    output = template.render(splunk_ip=splunk_ip)
+    output = template.render(splunk_ip=config['splunk_server_private_ip'])
     with open(output_path, 'w') as f:
         f.write(output)
 

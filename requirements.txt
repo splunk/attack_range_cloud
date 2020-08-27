@@ -8,3 +8,4 @@ python-terraform==0.10.1
 pywinrm==0.4.1
 PyYAML==5.3.1
 tabulate==0.8.6
+wget==3.2
