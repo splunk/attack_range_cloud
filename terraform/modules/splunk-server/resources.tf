@@ -105,7 +105,7 @@ resource "aws_instance" "splunk-server" {
   private_ip = var.config.splunk_server_private_ip
   iam_instance_profile = aws_iam_instance_profile.splunk_profile.name
   monitoring = true
-  #depends_on = [var.phantom_server_instance]
+  depends_on = [var.phantom_server_instance]
   root_block_device {
     volume_type = "gp2"
     volume_size = "30"
