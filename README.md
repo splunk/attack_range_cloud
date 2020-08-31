@@ -52,7 +52,7 @@ python cloud_attack_range.py -a simulate -st T1136.003
 ```
 - Perform Cloud Attack Simulation by Leonidas attack file
 ```
-python cloud_attack_range.py -a simulate -sf leonidas/definitions/persistence/add_api_key_to_iam_user.yml"
+python cloud_attack_range.py -a simulate -sf leonidas/definitions/persistence/add_api_key_to_iam_user.yml
 ```
 - Perform Cloud Attack Simulation by Leonidas attack file using custom variables and without prompt:
 ```
