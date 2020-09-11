@@ -129,6 +129,10 @@ sqs_queue_url = https://sqs.us-west-2.amazonaws.com/591511147606/cloudtrail-clou
 # specify the sqs queue for the cloudtrail logs. Cloudtrail needs to be enabled and configured manually.
 # more information can be found here: https://docs.splunk.com/Documentation/AddOns/released/AWS/CloudTrail
 
+[config]
+config_sqs_queue_url  = https://sqs.us-west-2.amazonaws.com/591511147606/config-cloud-attack-range
+# specify the sqs queue for the config logs. Config needs to be enabled and configured manually.
+
 
 [kubernetes]
 kubernetes = 0
