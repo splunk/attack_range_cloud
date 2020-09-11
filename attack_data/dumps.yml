@@ -1,0 +1,6 @@
+- name: aws:cloudtrail
+  out: aws:cloudtrail.out
+  search: index=* sourcetype=aws:cloudtrail
+  sourcetype: aws:cloudtrail
+  time: -2h
+  enabled: True

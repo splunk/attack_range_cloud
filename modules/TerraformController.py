@@ -1,7 +1,7 @@
 
 from python_terraform import *
 from tabulate import tabulate
-from modules import aws_service, kubernetes_service
+from modules import aws_service, kubernetes_service, splunk_sdk
 import ansible_runner
 import yaml
 import time
@@ -138,23 +138,37 @@ class TerraformController():
 
 
     def dump(self, dump_name):
-        # download Cloudtrail logs from S3
+        # download Cloudtrail rawnlogs via export_search mechanism
         # export Cloudwatch logs to S3 and then download them
 
         folder = "attack_data/" + dump_name
         os.mkdir(folder)
+        target_public_ip = aws_service.get_single_instance_public_ip("cloud-attack-range-splunk-server", self.config)
 
         # Cloudtrail
         if self.config['dump_cloudtrail_data'] == '1':
             self.log.info("Dump Cloudtrail logs. This can take some time.")
-            aws_service.download_S3_bucket('AWSLogs', self.config['cloudtrail_s3_bucket'], folder, self.config['cloudtrail_data_from_last_x_hours'], self.config['cloudtrail_data_from_regions'].split(','))
+            with open('attack_data/dumps.yml') as dumps:
+                for dump in yaml.full_load(dumps):
+                        if dump['enabled']:
+                            dump_out = dump['out']
+                            dump_search = "search %s earliest=%s" % (dump['search'], dump['time'])
+                            dump_info = "Dumping Splunk Search: %s to %s " % (dump_search, dump_out)
+                            out = open("attack_data/%s/%s" % (dump_name, dump_out), 'w')
+                            splunk_sdk.export_search(target_public_ip,
+                                                     s=dump_search,
+                                                     password=self.config['attack_range_password'],
+                                                     out=out)
+                            out.close()
+                            self.log.info("%s [Completed]" % dump_info)
+            # aws_service.download_S3_bucket('AWSLogs', self.config['cloudtrail_s3_bucket'], folder, self.config['cloudtrail_data_from_last_x_hours'], self.config['cloudtrail_data_from_regions'].split(','))
 
         # Cloudwatch
         if self.config['dump_aws_eks_data'] == '1':
             self.log.info("Dump AWS EKS logs from Cloudwatch. This can take some time.")
             aws_service.download_cloudwatch_logs(self.config, folder)
 
-        # Sync to S3
+        #Sync to S3
         if self.config['sync_to_s3_bucket'] == '1':
             self.log.info("upload attack data to S3 bucket. This can take some time")
             for file in self.getListOfFiles(folder):
