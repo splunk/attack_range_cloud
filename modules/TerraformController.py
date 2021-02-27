@@ -255,26 +255,42 @@ class TerraformController(IEnvironmentController):
 
 
     def list_machines(self):
-        instances = aws_service.get_all_instances(self.config)
-        response = []
-        instances_running = False
-        for instance in instances:
-            if instance['State']['Name'] == 'running':
-                instances_running = True
-                response.append([instance['Tags'][0]['Value'], instance['State']['Name'], instance['NetworkInterfaces'][0]['Association']['PublicIp']])
-            else:
-                response.append([instance['Tags'][0]['Value'], instance['State']['Name']])
+        if self.config['cloud_provider'] == 'aws':
+            instances = aws_service.get_all_instances(self.config)
+            response = []
+            instances_running = False
+            for instance in instances:
+                if instance['State']['Name'] == 'running':
+                    instances_running = True
+                    response.append([instance['Tags'][0]['Value'], instance['State']['Name'],
+                                     instance['NetworkInterfaces'][0]['Association']['PublicIp']])
+                else:
+                    response.append([instance['Tags'][0]['Value'],
+                                     instance['State']['Name']])
+
+        elif self.config['cloud_provider'] == 'azure':
+            instances = azure_service.get_all_instances(self.config)
+            response = []
+            instances_running = False
+            for instance in instances:
+                if instance['vm_obj'].instance_view.statuses[1].display_status == "VM running":
+                    instances_running = True
+                    response.append([instance['vm_obj'].name, instance['vm_obj'].instance_view.statuses[1].display_status, instance['public_ip']])
+                else:
+                    response.append([instance['vm_obj'].name, instance['vm_obj'].instance_view.statuses[1].display_status])
+
         print()
-        print('Status EC2 Machines\n')
+        print('Status Virtual Machines\n')
         if len(response) > 0:
             if instances_running:
-                print(tabulate(response, headers=['Name','Status', 'IP Address']))
+                print(tabulate(response, headers=[
+                      'Name', 'Status', 'IP Address']))
             else:
-                print(tabulate(response, headers=['Name','Status']))
+                print(tabulate(response, headers=['Name', 'Status']))
         else:
-            print("ERROR: Can't find configured EC2 Attack Range Instances in AWS.")
+            print("ERROR: Can't find configured Attack Range Instances")
         print()
-
+        
         if self.config['kubernetes'] == '1':
             print()
             print('Status Kubernetes\n')

@@ -26,6 +26,7 @@ terraform/aws/.terraform/
 terraform/azure/.terraform/
 terraform/aws/state/
 terraform/azure/state/
+terraform/.terraform/
 
 # .tfstate files
 *.tfstate
