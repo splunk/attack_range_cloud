@@ -16,7 +16,7 @@ data "aws_ami" "latest-ubuntu" {
 }
 
 resource "aws_iam_role" "splunk_role" {
-  name = "splunk_role_${var.config.key_name}"
+  name = "cloud_ar_splunk_role_${var.config.key_name}"
 
   assume_role_policy = <<EOF
 {
@@ -37,7 +37,7 @@ EOF
 }
 
 resource "aws_iam_instance_profile" "splunk_profile" {
-  name = "splunk_profile_${var.config.key_name}"
+  name = "cloud_ar_splunk_profile_${var.config.key_name}"
   role = aws_iam_role.splunk_role.name
 }
 
@@ -90,7 +90,7 @@ data "aws_iam_policy_document" "splunk_logging" {
 }
 
 resource "aws_iam_role_policy" "splunk_logging_policy" {
-  name = "splunk_logging_policy_${var.config.key_name}"
+  name = "cloud_ar_splunk_logging_policy_${var.config.key_name}"
   role = aws_iam_role.splunk_role.id
   policy = data.aws_iam_policy_document.splunk_logging.json
 }
@@ -112,7 +112,7 @@ resource "aws_instance" "splunk-server" {
     delete_on_termination = "true"
   }
   tags = {
-    Name = "cloud-attack-range-splunk-server"
+    Name = "cloud-ar-splunk-${var.config.range_name}-${var.config.key_name}"
   }
 
   provisioner "remote-exec" {

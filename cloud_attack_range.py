@@ -18,11 +18,18 @@ def init(args):
     config = args.config
     print("""
 starting program loaded for B1 battle droid
+
+          .-~~~-.
+  .- ~ ~-(       )_ _
+ /                     ~ -.
+|   Cloud Attack Range     \
+ \                         .'
+   ~- . _____________ . -~
           ||/__'`.
           |//()'-.:
           |-.||
           |o(o)
-          |||\\\  .==._
+          |||\\\  .==._    
           |||(o)==::'
            `|T  ""
             ()
@@ -38,6 +45,7 @@ starting program loaded for B1 battle droid
 
     # parse config
     attack_range_config = Path(config)
+    print (attack_range_config)
     if attack_range_config.is_file():
         print("attack_range is using config at path {0}".format(attack_range_config))
         configpath = str(attack_range_config)
@@ -52,9 +60,9 @@ starting program loaded for B1 battle droid
     log = logger.setup_logging(config['log_path'], config['log_level'])
     log.info("INIT - attack_range v" + str(VERSION))
 
-    if ARG_VERSION:
-        log.info("version: {0}".format(VERSION))
-        sys.exit(0)
+    # if ARG_VERSION:
+    #     log.info("version: {0}".format(VERSION))
+    #     sys.exit(0)
 
     return TerraformController(config, log), config, log
 
@@ -81,14 +89,14 @@ def simulate(args):
         simulation_atomics = 'no'
     return controller.simulate(target, simulation_techniques, simulation_atomics)
 
-def dump(args):
-    controller, _, _ = init(args)
-    controller.dump_attack_data(args.dump_name, args.last_sim)
+# def dump(args):
+#     controller, _, _ = init(args)
+#     controller.dump_attack_data(args.dump_name, args.last_sim)
 
 
-def replay(args):
-    controller, _, _ = init(args)
-    controller.replay_attack_data(args.dump_name, args.dump)
+# def replay(args):
+#     controller, _, _ = init(args)
+#     controller.replay_attack_data(args.dump_name, args.dump)
 
 
 def build(args):
@@ -119,7 +127,7 @@ def main(args):
     # grab arguments
     parser = argparse.ArgumentParser(
         description="Use `attack_range.py action -h` to get help with any Attack Range action")
-    parser.add_argument("-c", "--config", required=False, default="attack_range.conf",
+    parser.add_argument("-c", "--config", required=False, default="cloud_attack_range.conf",
                         help="path to the configuration file of the attack range")
     parser.add_argument("-v", "--version", default=False, action="version", version="version: {0}".format(VERSION),
                         help="shows current attack_range version")
@@ -165,24 +173,24 @@ def main(args):
                                       "example: Regsvr32 remote COM scriptlet execution for T1117")
     simulate_parser.set_defaults(func=simulate)
 
-    # Dump  Arguments
-    dump_parser.add_argument("-dn", "--dump_name", required=True,
-                             help="name for the dumped attack data")
-    dump_parser.add_argument("--last-sim", required=False, action='store_true',
-                             help="overrides dumps.yml time and dumps from the start of previous simulation")
-    dump_parser.set_defaults(func=dump)
+    # # Dump  Arguments
+    # dump_parser.add_argument("-dn", "--dump_name", required=True,
+    #                          help="name for the dumped attack data")
+    # dump_parser.add_argument("--last-sim", required=False, action='store_true',
+    #                          help="overrides dumps.yml time and dumps from the start of previous simulation")
+    # dump_parser.set_defaults(func=dump)
 
-    # Replay Arguments
-    replay_parser.add_argument("-dn", "--dump_name", required=True,
-                               help="name for the dumped attack data")
-    replay_parser.add_argument("--dump", required=False,
-                        help="name of the dump as defined in attack_data/dumps.yml")
-    replay_parser.set_defaults(func=replay)
+    # # Replay Arguments
+    # replay_parser.add_argument("-dn", "--dump_name", required=True,
+    #                            help="name for the dumped attack data")
+    # replay_parser.add_argument("--dump", required=False,
+    #                     help="name of the dump as defined in attack_data/dumps.yml")
+    # replay_parser.set_defaults(func=replay)
 
-    # Test Arguments
-    test_parser.add_argument("-tf", "--test_file", required=True,
-                             type=str, default="", help='test file for test command')
-    test_parser.set_defaults(func=test)
+    # # Test Arguments
+    # test_parser.add_argument("-tf", "--test_file", required=True,
+    #                          type=str, default="", help='test file for test command')
+    # test_parser.set_defaults(func=test)
 
     # Show arguments
     show_parser.add_argument("-m", "--machines", required=False, default=False,
