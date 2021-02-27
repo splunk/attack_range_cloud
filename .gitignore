@@ -27,6 +27,7 @@ terraform/azure/.terraform/
 terraform/aws/state/
 terraform/azure/state/
 terraform/.terraform/
+terraform/aws/.terraform.lock.hcl
 
 # .tfstate files
 *.tfstate
