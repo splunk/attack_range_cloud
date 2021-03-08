@@ -258,10 +258,12 @@ class TerraformController(IEnvironmentController):
         if self.config['cloud_provider'] == 'aws':
             instances = aws_service.get_all_instances(self.config)
             response = []
+
             instances_running = False
             for instance in instances:
                 if instance['State']['Name'] == 'running':
                     instances_running = True
+                    
                     response.append([instance['Tags'][0]['Value'], instance['State']['Name'],
                                      instance['NetworkInterfaces'][0]['Association']['PublicIp']])
                 else:
@@ -298,31 +300,31 @@ class TerraformController(IEnvironmentController):
             print()
 
 
-    def dump(self, dump_name):
-        # download Cloudtrail logs from S3
-        # export Cloudwatch logs to S3 and then download them
+    # def dump(self, dump_name):
+    #     # download Cloudtrail logs from S3
+    #     # export Cloudwatch logs to S3 and then download them
 
-        folder = "attack_data/" + dump_name
-        os.mkdir(folder)
+    #     folder = "attack_data/" + dump_name
+    #     os.mkdir(folder)
 
-        # Cloudtrail
-        if self.config['dump_cloudtrail_data'] == '1':
-            self.log.info("Dump Cloudtrail logs. This can take some time.")
-            aws_service.download_S3_bucket('AWSLogs', self.config['cloudtrail_s3_bucket'], folder, self.config['cloudtrail_data_from_last_x_hours'], self.config['cloudtrail_data_from_regions'].split(','))
+    #     # Cloudtrail
+    #     if self.config['dump_cloudtrail_data'] == '1':
+    #         self.log.info("Dump Cloudtrail logs. This can take some time.")
+    #         aws_service.download_S3_bucket('AWSLogs', self.config['cloudtrail_s3_bucket'], folder, self.config['cloudtrail_data_from_last_x_hours'], self.config['cloudtrail_data_from_regions'].split(','))
 
-        # Cloudwatch
-        if self.config['dump_aws_eks_data'] == '1':
-            self.log.info("Dump AWS EKS logs from Cloudwatch. This can take some time.")
-            aws_service.download_cloudwatch_logs(self.config, folder)
+    #     # Cloudwatch
+    #     if self.config['dump_aws_eks_data'] == '1':
+    #         self.log.info("Dump AWS EKS logs from Cloudwatch. This can take some time.")
+    #         aws_service.download_cloudwatch_logs(self.config, folder)
 
-        # Sync to S3
-        if self.config['sync_to_s3_bucket'] == '1':
-            self.log.info("upload attack data to S3 bucket. This can take some time")
-            for file in self.getListOfFiles(folder):
-                self.log.info("upload file " + file  + " to S3 bucket.")
-                p = pathlib.Path(file)
-                new_path = str(pathlib.Path(*p.parts[1:]))
-                aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, new_path)
+    #     # Sync to S3
+    #     if self.config['sync_to_s3_bucket'] == '1':
+    #         self.log.info("upload attack data to S3 bucket. This can take some time")
+    #         for file in self.getListOfFiles(folder):
+    #             self.log.info("upload file " + file  + " to S3 bucket.")
+    #             p = pathlib.Path(file)
+    #             new_path = str(pathlib.Path(*p.parts[1:]))
+    #             aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, new_path)
 
 
 ## helper functions
@@ -386,3 +388,63 @@ class TerraformController(IEnvironmentController):
                 allFiles.append(fullPath)
 
         return allFiles
+
+    def dump_attack_data(self, dump_name, last_sim):
+        self.log.info("Dump log data")
+
+        folder = "attack_data/" + dump_name
+        os.mkdir(os.path.join(os.path.dirname(__file__), '../' + folder))
+
+        server_str = ("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'])
+        if self.config['cloud_provider'] == 'aws':
+            target_public_ip = aws_service.get_single_instance_public_ip(server_str, self.config)
+            ansible_user = 'Administrator'
+            ansible_port = 5986
+        elif self.config['cloud_provider'] == 'azure':
+            target_public_ip = azure_service.get_instance(self.config, server_str, self.log)['public_ip']
+            ansible_user = 'AzureAdmin'
+            ansible_port = 5985
+
+        with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dumps:
+            for dump in yaml.full_load(dumps):
+                if dump['enabled']:
+                    dump_out = dump['dump_parameters']['out']
+                    if last_sim:
+                        # if last_sim is set, then it overrides time in dumps.yml
+                        # and starts dumping from last simulation
+                        with open(os.path.join(os.path.dirname(__file__),
+                                               "../attack_data/.%s-last-sim.tmp" % self.config['range_name']),
+                                  'r') as ls:
+                            sim_ts = float(ls.readline())
+                            dump['dump_parameters']['time'] = "-%ds" % int(time.time() - sim_ts)
+                    dump_search = "search %s earliest=%s | sort 0 _time" \
+                                  % (dump['dump_parameters']['search'], dump['dump_parameters']['time'])
+                    dump_info = "Dumping Splunk Search to %s " % dump_out
+                    self.log.info(dump_info)
+                    out = open(os.path.join(os.path.dirname(__file__), "../attack_data/" + dump_name + "/" + dump_out), 'wb')
+                    splunk_sdk.export_search(target_public_ip,
+                                             s=dump_search,
+                                             password=self.config['attack_range_password'],
+                                             out=out)
+                    out.close()
+                    self.log.info("%s [Completed]" % dump_info)
+
+
+    def replay_attack_data(self, dump_name, dump, replay_parameters = None):
+        if self.config['cloud_provider'] == 'aws':
+            splunk_ip = aws_service.get_single_instance_public_ip("ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.config)
+        elif self.config['cloud_provider'] == 'azure':
+            splunk_ip = azure_service.get_instance(self.config, "ar-splunk-" + self.config['range_name'] + "-" + self.config['key_name'], self.log)['public_ip']
+
+        if replay_parameters == None:
+            with open(os.path.join(os.path.dirname(__file__), '../attack_data/dumps.yml')) as dump_fh:
+                for d in yaml.full_load(dump_fh):
+                    if (d['name'] == dump or dump is None) and d['enabled']:
+                        if 'update_timestamp' in d['replay_parameters']:
+                            if d['replay_parameters']['update_timestamp'] == True:
+                                print('d1')
+                                data_manipulation = DataManipulation()
+                                data_manipulation.manipulate_timestamp(os.path.join(dump_name, d['dump_parameters']['out']), self.log, d['replay_parameters']['sourcetype'], d['replay_parameters']['source'])
+                        self.replay_attack_dataset(splunk_ip, dump_name, d['replay_parameters']['index'], d['replay_parameters']['sourcetype'], d['replay_parameters']['source'], d['dump_parameters']['out'])
+        else:
+            self.replay_attack_dataset(splunk_ip, dump_name, 'test', replay_parameters['sourcetype'], replay_parameters['source'], replay_parameters['out'])

@@ -89,14 +89,14 @@ def simulate(args):
         simulation_atomics = 'no'
     return controller.simulate(target, simulation_techniques, simulation_atomics)
 
-# def dump(args):
-#     controller, _, _ = init(args)
-#     controller.dump_attack_data(args.dump_name, args.last_sim)
+def dump(args):
+    controller, _, _ = init(args)
+    controller.dump_attack_data(args.dump_name, args.last_sim)
 
 
-# def replay(args):
-#     controller, _, _ = init(args)
-#     controller.replay_attack_data(args.dump_name, args.dump)
+def replay(args):
+    controller, _, _ = init(args)
+    controller.replay_attack_data(args.dump_name, args.dump)
 
 
 def build(args):

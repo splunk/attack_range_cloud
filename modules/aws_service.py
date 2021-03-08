@@ -24,7 +24,8 @@ def get_single_instance_public_ip(ec2_name, config):
 
 def get_all_instances(config):
     key_name = config['key_name']
-    client = boto3.client('ec2')
+    region = config['region']
+    client = boto3.client('ec2', region_name=region)
     response = client.describe_instances(
         Filters=[
             {
@@ -39,7 +40,8 @@ def get_all_instances(config):
             if instance['State']['Name']!='terminated':
                 if len(instance['Tags']) > 0:
                     str = instance['Tags'][0]['Value']
-                    if str.startswith('cloud-attack-range'):
+                    if (config['range_name'] in str) and (config['key_name'] in str):
+                        
                         instances.append(instance)
 
     return instances
