@@ -8,12 +8,20 @@ log_level = INFO
 # Sets the log level for the logging
 # Possible values: INFO, ERROR
 
-
-[range_settings]
 attack_range_password = I-l1ke-Attack-Range!
 # Master password for all administrative accounts
 # default I-l1ke-Attack-Range!
 
+cloud_provider = aws
+# cloud provider to deploy the Attack Range
+# example_1: aws
+# example_2: azure
+
+[aws]
+instance_type_ec2 = t2.2xlarge
+# instance type for the aws ec2 instances
+
+[range_settings]
 key_name = cloud-attack-range
 # Specify the name of the EC2 key pair name
 # This is only needed for modes: terraform and packer
