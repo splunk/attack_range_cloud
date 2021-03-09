@@ -40,7 +40,7 @@ def get_all_instances(config):
             if instance['State']['Name']!='terminated':
                 if len(instance['Tags']) > 0:
                     str = instance['Tags'][0]['Value']
-                    if (config['range_name'] in str) and (config['key_name'] in str):
+                    if (config['range_name'] in str) and (config['key_name'] in str) and ('cloud-ar' in str):
                         
                         instances.append(instance)
 
