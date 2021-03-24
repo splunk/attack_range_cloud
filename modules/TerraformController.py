@@ -199,59 +199,73 @@ class TerraformController(IEnvironmentController):
         return file
 
     # To be tested and refactored
-    def simulate(self, simulation_technique, simulation_file, force, simulation_vars):
+    def simulate(self, target, simulation_techniques, simulation_atomics, var_str='no'):
 
         # read definition files from Leonidas
         # search for technique or name
         # run command with subsitution of variables
+        start_time = time.time()
+        techniques_arr = simulation_techniques.split(',')
+        if (len(techniques_arr) > 1) and (simulation_atomics != 'no'):
+            self.log.error(
+                'ERROR: if simulation_atomics are used, only a single simulation_technique is allowed.')
+            sys.exit(1)
+
+        run_specific_atomic_tests = 'True'
+        if simulation_atomics == 'no':
+            run_specific_atomic_tests = 'False'
 
         filelist = []
         objects = []
 
-        if simulation_technique:
-            path ="leonidas/definitions"
+        if simulation_techniques:
+            path ="/Users/bpatel/Research/malware/splunk_github/atomic-red-team/atomics/"
 
             for root, dirs, files in os.walk(path):
+
                 for file in files:
-                    if os.path.splitext(file)[1] == ".yml":
+                    if os.path.splitext(file)[1] == ".yaml":
                         filepath = os.path.join(root,file)
                         object = self.load_file(filepath)
-                        for technique in object['mitre_ids']:
-                            if technique == simulation_technique:
-                                filelist.append(filepath)
-                                objects.append(object)
 
+                        if 'attack_technique' in object:
+                        
+                            if object['attack_technique'] == simulation_techniques:
+                                filelist.append(filepath)
+                        
             if not filelist:
                 self.log.error('ERROR: No attack file found for given technique')
                 sys.exit(1)
+        subprocess.run(['open', '-W', '-a', 'Terminal.app','-n','/usr/local/bin/pwsh'])
+        
 
-        elif simulation_file:
-            filelist.append(simulation_file)
-            object = self.load_file(simulation_file)
-            objects.append(object)
+        # elif simulation_file:
+        #     filelist.append(simulation_file)
+        #     object = self.load_file(simulation_file)
+        #     objects.append(object)
 
-        for object in objects:
-            data = dict()
-            if simulation_vars:
-                data = dict(item.split("=") for item in simulation_vars.split(", "))
-            else:
-                for var in object['input_arguments']:
-                    data[var] = object['input_arguments'][var]['value']
+        # for object in objects:
+        #     data = dict()
+        #     if simulation_vars:
+        #         data = dict(item.split("=") for item in simulation_vars.split(", "))
+        #     else:
+        #         for var in object['input_arguments']:
+        #             data[var] = object['input_arguments'][var]['value']
 
-            rtemplate = Environment(loader=BaseLoader()).from_string(object['executors']['sh']['code'])
-            function_call = rtemplate.render(**data)
-            print(function_call)
-            if force:
-                stream = os.popen(function_call)
-                output = stream.read()
-                print(output)
-            else:
-                if self.query_yes_no('Run attack command? [default=Y]') or force:
-                    stream = os.popen(function_call)
-                    output = stream.read()
-                    print(output)
-                else:
-                    self.log.info('Attack is not executed.')
+        #     rtemplate = Environment(loader=BaseLoader()).from_string(object['executors']['sh']['code'])
+        #     function_call = rtemplate.render(**data)
+        #     print(function_call)
+        #     if force:
+        #         stream = os.popen(function_call)
+        #         output = stream.read()
+        #         print(output)
+        #     else:
+        #         if self.query_yes_no('Run attack command? [default=Y]') or force:
+        #             stream = os.popen(function_call)
+        #             output = stream.read()
+        #             print(output)
+        #         else:
+        #             self.log.info('Attack is not executed.')
 
 
     def list_machines(self):
