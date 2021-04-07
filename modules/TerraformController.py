@@ -198,74 +198,139 @@ class TerraformController(IEnvironmentController):
                 sys.exit("ERROR: reading {0}".format(file_path))
         return file
 
-    # To be tested and refactored
-    def simulate(self, simulation_techniques,clean_up, var_str='no'):
-
-        # read definition files from Leonidas
-        # search for technique or name
-        # run command with subsitution of variables
+    def find_attack_yaml(self,path,techniques_arr):
         objects = []
+        for root, dirs, files in os.walk(path):
+                for file in files:
+                    if os.path.splitext(file)[1] == ".yaml":
+                        for t in techniques_arr:
+                            if t in file:
+                                filepath = os.path.join(root,file)
+                                object = self.load_file(filepath)
+                                objects.append(object)
+
+        return objects
+
+    def replace_simulation_vars(self,atomic_tests,clean_up):
+
+        if clean_up == 'no':
+            for key, value in atomic_tests['input_arguments'].items():
+
+                old_command = (str(atomic_tests['executor']['command']))
+
+                if key in old_command:
+                    new_command = old_command.replace(key,value['default']).replace('#{','').replace('}','')
+                    
+        if clean_up == 'yes':
+            for key, value in atomic_tests['input_arguments'].items():
+
+                old_command = (str(atomic_tests['executor']['cleanup_command']))
+
+                if key in old_command:
+                    new_command = old_command.replace(key,value['default']).replace('#{','').replace('}','')
+                    
+        return (new_command)
+
+
+    def simulate_techniques(self,simulation_techniques,clean_up, var_str='no'):
+
         techniques_arr = simulation_techniques.split(',')
-        path ="/Users/bpatel/Research/malware/splunk_github/atomic-red-team/atomics"
+        path = self.config['atomic_red_team_path']
+        new_commands=[]
+        objects = self.find_attack_yaml(path,techniques_arr)
+
         if simulation_techniques and clean_up == 'no':
 
-            for root, dirs, files in os.walk(path):
-                for file in files:
-                    if os.path.splitext(file)[1] == ".yaml":
-                        for t in techniques_arr:
-                            if t in file:
-                                filepath = os.path.join(root,file)
-                                object = self.load_file(filepath)
-                                objects.append(object)
-            new_commands=[]
             for object in objects:
             
                 data = dict()
-
                 for atomic_tests in object['atomic_tests']:
-                    for key, value in atomic_tests['input_arguments'].items():
+                    if 'cloud_environment' in atomic_tests:
+                        new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
+                        print("Execute - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
+                        
+                        rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
+                        
+                        function_call = rtemplate.render(**data)
+                        stream = os.popen(function_call)
+                        output = stream.read()
+                        print(output)
 
-                        old_command = (str(atomic_tests['executor']['command']))
-
-                        if key in old_command:
-                            new_command = old_command.replace(key,value['default']).replace('#{','').replace('}','')
-                            print(new_command)
-                            rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
-                            
-                            function_call = rtemplate.render(**data)
-                            stream = os.popen(function_call)
-                            output = stream.read()
-                            print(output)
+                    
 
         if simulation_techniques and clean_up == 'yes':
-            print ("Cleaning up  simulation resources")
-            for root, dirs, files in os.walk(path):
-                for file in files:
-                    if os.path.splitext(file)[1] == ".yaml":
-                        for t in techniques_arr:
-                            if t in file:
-                                filepath = os.path.join(root,file)
-                                object = self.load_file(filepath)
-                                objects.append(object)
-            new_commands=[]
+
             for object in objects:
             
                 data = dict()
 
                 for atomic_tests in object['atomic_tests']:
-                    for key, value in atomic_tests['input_arguments'].items():
-
-                        old_command = (str(atomic_tests['executor']['cleanup_command']))
-
-                        if key in old_command:
-                            new_command = old_command.replace(key,value['default']).replace('#{','').replace('}','')
-                            print(new_command)
-                            rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
+                    if 'cloud_environment' in atomic_tests:
+                        new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
+                        print("Clean up - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
+                        rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
+                        
+                        function_call = rtemplate.render(**data)
+                        stream = os.popen(function_call)
+                        output = stream.read()
+                        
+                       
                             
-                            function_call = rtemplate.render(**data)
-                            stream = os.popen(function_call)
-                            output = stream.read()
-                            print(output)      
+
+
+    # To be tested and refactored
+    def simulate(self, simulation_techniques,attack_chain_file,clean_up, var_str='no'):
+
+
+        attack_chain_techniques=""
+        clean_up_atomics=[]
+
+        if attack_chain_file and simulation_techniques =='no':
+            attack_chain_path = "attack_chain"
+
+            for root, dirs, files in os.walk(attack_chain_path):
+                for file in files:
+                    if os.path.splitext(file)[1] == ".yaml":
+                    
+                        if attack_chain_file in file:
+                            filepath = os.path.join(root,file)
+                            object = self.load_file(filepath)
+            
+            if clean_up == 'no':
+                print("sup")
+
+                for atomics in object['atomic_tests_chain']:
+                    attack_chain_techniques+=((atomics['atomic_test_id'])+",")
+                attack_chain_techniques=(attack_chain_techniques[:-1])
+                # print (attack_chain_techniques)
+                
+                self.simulate_techniques(attack_chain_techniques,clean_up)
+
+            if clean_up == 'yes':
+
+                for atomics in object['atomic_tests_chain']:
+
+                   clean_up_atomics.append(atomics['atomic_test_id'])
+                clean_up_atomics.reverse()
+                attack_chain_techniques = str(clean_up_atomics).replace('[\'', '').replace('\']', '').replace('\', \'', ',')
+                # print((attack_chain_techniques))
+
+                self.simulate_techniques(attack_chain_techniques, clean_up)
+
+            
+        if simulation_techniques and attack_chain_file  =='no' and clean_up == 'no':
+            self.simulate_techniques(simulation_techniques,clean_up
+                )
+            print("Simuating- cloud atomic test",simulation_techniques)
+
+        if simulation_techniques and attack_chain_file  =='no' and clean_up == 'yes':
+            self.simulate_techniques(simulation_techniques,clean_up
+                )
+
+            print("Clean Up- cloud atomic test:",simulation_techniques)
+
+        
+        
 
 
     def list_machines(self):

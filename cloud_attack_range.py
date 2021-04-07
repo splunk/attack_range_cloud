@@ -77,15 +77,18 @@ def show(args):
 def simulate(args):
     controller, config, _ = init(args)
     simulation_techniques = args.simulation_technique
+    attack_chain_file = args.attack_chain_file
     clean_up = args.clean_up
 
     # lets give CLI priority over config file for pre-configured techniques
-    if simulation_techniques:
-        pass
+    if not simulation_techniques:
+        simulation_techniques = 'no'
+    if not attack_chain_file:
+        attack_chain_file = 'no'
     if not clean_up:
         clean_up = 'no'
 
-    return controller.simulate(simulation_techniques,clean_up)
+    return controller.simulate(simulation_techniques,attack_chain_file,clean_up)
 
 
 def dump(args):
@@ -161,16 +164,16 @@ def main(args):
                                     help="provide path to write configuration to")
     configure_parser.set_defaults(func=configure)
 
-    simulate_parser.add_argument("-sf", "--simulation_file", required=False,
-                                 help="target for attack simulation. Use the name of the aws EC2 name")
+    simulate_parser.add_argument("-acf", "--attack_chain_file", required=False,
+                                 help="attack chain file")
 
     # Simulation arguments
     simulate_parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                                  help="comma delimited list of MITRE ATT&CK technique ID to simulate in the "
                                       "attack_range, example: T1117, T1118, requires --simulation flag")
-    simulate_parser.add_argument("-sa", "--simulation_atomics", required=False, type=str, default="",
-                                 help="specify dedicated Atomic Red Team atomics to simulate in the attack_range, "
-                                      "example: Regsvr32 remote COM scriptlet execution for T1117")
+    # simulate_parser.add_argument("-sa", "--simulation_atomics", required=False, type=str, default="",
+    #                              help="specify dedicated Atomic Red Team atomics to simulate in the attack_range, "
+    #                                   "example: Regsvr32 remote COM scriptlet execution for T1117")
     simulate_parser.add_argument("-cu", "--clean_up", required=False, type=str, default="",
                                  help="cleanup simulations")
     simulate_parser.set_defaults(func=simulate)
