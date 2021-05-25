@@ -35,16 +35,6 @@ class TerraformController(IEnvironmentController):
         # elif self.config['cloud_provider'] == 'azure':
         #     self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/azure'),variables=variables, parallelism=15 ,state=config["statepath"])
 
-        #OLD CODE
-
-        # self.config = config
-        # self.log = log
-        # custom_dict = self.config.copy()
-        # variables = dict()
-        # variables['config'] = custom_dict
-        # self.terraform = Terraform(working_dir='terraform',variables=variables)
-
-
     def build(self):
 
         self.log.info("[action] > build\n")
@@ -75,11 +65,11 @@ class TerraformController(IEnvironmentController):
         self.log.info(
             "attack_range has been destroy using terraform successfully")
 
-        # if self.config["kubernetes"]=="1":
-        #     kubernetes_service.delete_application(self.config, self.log)
-        # self.log.info("[action] > destroy\n")
-        # return_code, stdout, stderr = self.terraform.destroy(capture_output='yes', no_color=IsNotFlagged)
-        # self.log.info("attack_range has been destroy using terraform successfully")
+        if self.config["kubernetes"]=="1":
+            kubernetes_service.delete_application(self.config, self.log)
+        self.log.info("[action] > destroy\n")
+        return_code, stdout, stderr = self.terraform.destroy(capture_output='yes', no_color=IsNotFlagged)
+        self.log.info("attack_range has been destroy using terraform successfully")
 
 
     def stop(self):
@@ -89,19 +79,13 @@ class TerraformController(IEnvironmentController):
         elif self.config['cloud_provider'] == 'azure':
             azure_service.change_instance_state(self.config, 'stopped', self.log)
 
-        # instances = aws_service.get_all_instances(self.config)
-        # aws_service.change_ec2_state(instances, 'stopped', self.log)
-
-
     def resume(self):
         if self.config['cloud_provider'] == 'aws':
             instances = aws_service.get_all_instances(self.config)
             aws_service.change_ec2_state(instances, 'running', self.log, self.config)
         elif self.config['cloud_provider'] == 'azure':
             azure_service.change_instance_state(self.config, 'running', self.log)
-        # instances = aws_service.get_all_instances(self.config)
-        # aws_service.change_ec2_state(instances, 'running', self.log)
-
+        
     def test(self, test_file):
         # read test file
         test_file = self.load_file(test_file)
@@ -189,14 +173,23 @@ class TerraformController(IEnvironmentController):
 
         return result_tests
 
+    # def load_file(self, file_path):
+    #     with open(file_path, 'r', encoding="utf-8") as stream:
+    #         try:
+    #             file = list(yaml.safe_load_all(stream))[0]
+    #         except yaml.YAMLError as exc:
+    #             self.log.error(exc)
+    #             sys.exit("ERROR: reading {0}".format(file_path))
+    #     return file
+
     def load_file(self, file_path):
-        with open(file_path, 'r', encoding="utf-8") as stream:
+        with open(file_path, 'r') as stream:
             try:
-                file = list(yaml.safe_load_all(stream))[0]
+                object = list(yaml.safe_load_all(stream))[0]
             except yaml.YAMLError as exc:
-                self.log.error(exc)
+                print(exc)
                 sys.exit("ERROR: reading {0}".format(file_path))
-        return file
+        return object
 
     def find_attack_yaml(self,path,techniques_arr):
         objects = []
@@ -240,13 +233,15 @@ class TerraformController(IEnvironmentController):
         new_commands=[]
         objects = self.find_attack_yaml(path,techniques_arr)
 
+        print ("whaaaaa")
+
         if simulation_techniques and clean_up == 'no':
 
             for object in objects:
             
                 data = dict()
                 for atomic_tests in object['atomic_tests']:
-                    if 'cloud_environment' in atomic_tests:
+                    if 'cloud_provider' in atomic_tests:
                         new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
                         print("Execute - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
                         
@@ -266,7 +261,7 @@ class TerraformController(IEnvironmentController):
                 data = dict()
 
                 for atomic_tests in object['atomic_tests']:
-                    if 'cloud_environment' in atomic_tests:
+                    if 'cloud_provider' in atomic_tests:
                         new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
                         print("Clean up - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
                         rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
@@ -299,7 +294,6 @@ class TerraformController(IEnvironmentController):
                 for atomics in object['atomic_tests_chain']:
                     attack_chain_techniques+=((atomics['atomic_test_id'])+",")
                 attack_chain_techniques=(attack_chain_techniques[:-1])
-                # print (attack_chain_techniques)
                 
                 self.simulate_techniques(attack_chain_techniques,clean_up)
 
@@ -315,9 +309,10 @@ class TerraformController(IEnvironmentController):
 
             
         if simulation_techniques and attack_chain_file  =='no' and clean_up == 'no':
+            print("Simuating- cloud atomic test",simulation_techniques)
             self.simulate_techniques(simulation_techniques,clean_up
                 )
-            print("Simuating- cloud atomic test",simulation_techniques)
+            
 
         if simulation_techniques and attack_chain_file  =='no' and clean_up == 'yes':
             self.simulate_techniques(simulation_techniques,clean_up
@@ -327,8 +322,6 @@ class TerraformController(IEnvironmentController):
 
         
         
-
-
     def list_machines(self):
         if self.config['cloud_provider'] == 'aws':
             instances = aws_service.get_all_instances(self.config)
@@ -393,19 +386,7 @@ class TerraformController(IEnvironmentController):
 
 ## helper functions
 
-    def load_file(self, file_path):
-        with open(file_path, 'r') as stream:
-            try:
-                object = list(yaml.safe_load_all(stream))[0]
-            except yaml.YAMLError as exc:
-                print(exc)
-                sys.exit("ERROR: reading {0}".format(file_path))
-        return object
-
-
-   
-
-
+    
     
 
     def dump_attack_data(self, dump_name, last_sim):
