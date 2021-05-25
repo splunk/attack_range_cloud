@@ -210,6 +210,7 @@ class TerraformController(IEnvironmentController):
                                 objects.append(object)
 
         return objects
+    #This Function is to replace variables in the atomic yamls
 
     def replace_simulation_vars(self,atomic_tests,clean_up):
 
@@ -231,7 +232,7 @@ class TerraformController(IEnvironmentController):
                     
         return (new_command)
 
-
+    #This Function is to simulate specific techniques 
     def simulate_techniques(self,simulation_techniques,clean_up, var_str='no'):
 
         techniques_arr = simulation_techniques.split(',')
@@ -273,12 +274,9 @@ class TerraformController(IEnvironmentController):
                         function_call = rtemplate.render(**data)
                         stream = os.popen(function_call)
                         output = stream.read()
-                        
-                       
+                                        
                             
-
-
-    # To be tested and refactored
+    # Main function :To be tested and refactored
     def simulate(self, simulation_techniques,attack_chain_file,clean_up, var_str='no'):
 
 
@@ -297,7 +295,6 @@ class TerraformController(IEnvironmentController):
                             object = self.load_file(filepath)
             
             if clean_up == 'no':
-                print("sup")
 
                 for atomics in object['atomic_tests_chain']:
                     attack_chain_techniques+=((atomics['atomic_test_id'])+",")
@@ -313,7 +310,6 @@ class TerraformController(IEnvironmentController):
                    clean_up_atomics.append(atomics['atomic_test_id'])
                 clean_up_atomics.reverse()
                 attack_chain_techniques = str(clean_up_atomics).replace('[\'', '').replace('\']', '').replace('\', \'', ',')
-                # print((attack_chain_techniques))
 
                 self.simulate_techniques(attack_chain_techniques, clean_up)
 
@@ -407,55 +403,10 @@ class TerraformController(IEnvironmentController):
         return object
 
 
-    def query_yes_no(self, question, default="yes"):
-        """Ask a yes/no question via raw_input() and return their answer.
-
-        "question" is a string that is presented to the user.
-        "default" is the presumed answer if the user just hits <Enter>.
-            It must be "yes" (the default), "no" or None (meaning
-            an answer is required of the user).
-
-        The "answer" return value is True for "yes" or False for "no".
-        """
-        valid = {"yes": True, "y": True, "ye": True,
-                 "no": False, "n": False}
-        if default is None:
-            prompt = " [y/n] "
-        elif default == "yes":
-            prompt = " [Y/n] "
-        elif default == "no":
-            prompt = " [y/N] "
-        else:
-            raise ValueError("invalid default answer: '%s'" % default)
-
-        while True:
-            sys.stdout.write(question + prompt)
-            choice = input().lower()
-            if default is not None and choice == '':
-                return valid[default]
-            elif choice in valid:
-                return valid[choice]
-            else:
-                sys.stdout.write("Please respond with 'yes' or 'no' "
-                                 "(or 'y' or 'n').\n")
+   
 
 
-    def getListOfFiles(self, dirName):
-        # create a list of file and sub directories
-        # names in the given directory
-        listOfFile = os.listdir(dirName)
-        allFiles = list()
-        # Iterate over all the entries
-        for entry in listOfFile:
-            # Create full path
-            fullPath = os.path.join(dirName, entry)
-            # If entry is a directory then get the list of files in this directory
-            if os.path.isdir(fullPath):
-                allFiles = allFiles + self.getListOfFiles(fullPath)
-            else:
-                allFiles.append(fullPath)
-
-        return allFiles
+    
 
     def dump_attack_data(self, dump_name, last_sim):
         self.log.info("Dump log data")

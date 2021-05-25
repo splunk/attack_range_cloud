@@ -40,6 +40,18 @@ region = eu-central-1
 # please ensure that aws_cli has the same region specified
 # This is only needed for modes: terraform and packer
 
+range_name = default
+# Specify a unique name for the assets in a region
+# Setting this allows you to deploy additional ranges with the same key_name
+# An example would be for user1 and user2 testing in seperate environments
+# or user1 testing multiple use cases.
+# we suggest to use multiple attack_range.conf files when you deploy multiple
+# attack ranges.
+
+
+atomic_red_team_path = /Users/bpatel/Research/malware/splunk_github/atomic-red-team/atomics
+# Specify the path to atomic-red-team git repositories where the atomics are present
+
 
 [splunk_settings]
 
