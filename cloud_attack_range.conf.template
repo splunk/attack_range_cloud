@@ -1,4 +1,4 @@
-# This file contains possible settings you can use to configure Attack Range
+	# This file contains possible settings you can use to configure Attack Range
 
 [global]
 log_path = attack_range.log
@@ -38,7 +38,10 @@ private_key_path = ~/.ssh/id_rsa
 region = eu-central-1
 # Specify the aws region in which you want to build the attack range
 # please ensure that aws_cli has the same region specified
-# This is only needed for modes: terraform and packer
+# This is only needed for modes: terraform and 
+
+public_key_path = ~/.ssh/id_rsa.pub
+# Only for Azure needed
 
 range_name = default
 # Specify a unique name for the assets in a region
@@ -49,7 +52,8 @@ range_name = default
 # attack ranges.
 
 
-atomic_red_team_path = /Users/bpatel/Research/malware/splunk_github/atomic-red-team/atomics
+atomic_red_team_path =
+# Clone atomic red team locally from https://github.com/redcanaryco/atomic-red-team 
 # Specify the path to atomic-red-team git repositories where the atomics are present
 
 
@@ -127,13 +131,13 @@ phantom_server = 0
 # possible values: 1, 0
 
 
-
 [splunk_server]
 # customize the splunk server
 
 splunk_server_private_ip = 10.0.1.12
 # specify the splunk server's private ip
 # for mode terraform should be in subnet: 10.0.1.0/24
+
 
 
 [phantom_server]

@@ -54,19 +54,6 @@ def create_key_pair_aws(client):
     os.chmod(ssh_key_name, 0o600)
     return ssh_key_name
 
-def create_key_pair_azure():
-    # create new ssh key
-    epoch_time = str(int(time.time()))
-    key = RSA.generate(2048)
-    priv_key_name = getpass.getuser() + "-" + epoch_time[-5:] + ".key"
-    pub_key_name = getpass.getuser() + "-" + epoch_time[-5:] + ".pub"
-    with open(priv_key_name, 'wb') as content_file:
-        os.chmod(priv_key_name, 0o600)
-        content_file.write(key.exportKey('PEM'))
-    pubkey = key.publickey()
-    with open(pub_key_name, 'wb') as content_file:
-        content_file.write(pubkey.exportKey('OpenSSH'))
-    return priv_key_name, pub_key_name
 
 def check_for_generated_keys(answers):
     keys = []
@@ -107,12 +94,13 @@ def check_reuse_keys(answers):
         return True
 
 def new(config):
-    attack_range_config = Path(config)
-    if attack_range_config.is_file():
+    cloud_attack_range_config = Path(config)
+    print(config)
+    if cloud_attack_range_config.is_file():
         questions = [
         {
             'type': 'confirm',
-            'message': 'File {0} already exist, are you sure you want to continue?\nTHIS WILL OVERWRITE YOUR CURRENT CONFIG!'.format(attack_range_config),
+            'message': 'File {0} already exist, are you sure you want to continue?\nTHIS WILL OVERWRITE YOUR CURRENT CONFIG!'.format(cloud_attack_range_config),
             'name': 'continue',
             'default': True,
         },
@@ -125,7 +113,7 @@ def new(config):
             print("> exiting, to create a unique configuration file in another location use the --config flag")
             sys.exit(0)
 
-        configpath = str(attack_range_config)
+        configpath = str(cloud_attack_range_config)
 
     print("""
            ________________
@@ -168,18 +156,10 @@ starting configuration for AT-ST mech walker
                 {
                     'name': 'aws'
                 },
-                {
-                    'name': 'azure'
-                },
+                
             ],
         },
-        {
-            # get api_key
-            'type': 'input',
-            'message': 'enter azure subscription id',
-            'name': 'azure_subscription_id',
-            'when': lambda answers: answers['cloud_provider'] == 'azure',
-        },
+        
         {
             # get range password
             'type': 'input',
@@ -200,10 +180,6 @@ starting configuration for AT-ST mech walker
         aws_configured_region = ''
     configuration._sections['global']['cloud_provider'] = answers['cloud_provider']
     configuration._sections['global']['attack_range_password'] = answers['attack_range_password']
-    if 'azure_subscription_id' in answers:
-        configuration._sections['azure']['azure_subscription_id'] = answers['azure_subscription_id']
-    else:
-        configuration._sections['azure']['azure_subscription_id'] = 'xxxXXX'
 
     print("> configuring attack_range settings")
 
@@ -254,14 +230,6 @@ starting configuration for AT-ST mech walker
                 configuration._sections['range_settings']['private_key_path'] = str(new_key_path)
                 configuration._sections['range_settings']['public_key_path'] = str(pub_key)
                 print("> new aws ssh created: {}".format(new_key_path))
-            elif configuration._sections['global']['cloud_provider'] == "azure":
-                priv_key_name, pub_key_name = create_key_pair_azure()
-                priv_key_path = Path(priv_key_name).resolve()
-                pub_key_path = Path(pub_key_name).resolve()
-                configuration._sections['range_settings']['key_name'] = priv_key_name[:-4]
-                configuration._sections['range_settings']['private_key_path'] = str(priv_key_path)
-                configuration._sections['range_settings']['public_key_path'] = str(pub_key_path)
-                print("> new azure ssh pair created:\nprivate key: {0}\npublic key:{1}".format(priv_key_path, pub_key_path))
             else:
                 print("ERROR, we do not support generating a key pair for the selected provider: {}".format(configuration._sections['global']['cloud_provider']))
 
@@ -313,6 +281,7 @@ starting configuration for AT-ST mech walker
             'name': 'range_name',
             'default': "default",
         },
+        
 
     ]
 
@@ -338,45 +307,16 @@ starting configuration for AT-ST mech walker
     # rest of configs
     configuration._sections['range_settings']['ip_whitelist'] = answers['ip_whitelist']
     configuration._sections['range_settings']['range_name'] = answers['range_name']
+    configuration._sections['range_settings']['atomic_red_team_path'] = answers['atomic_red_team_path']
 
     print("> configuring attack_range environment")
     questions = [
         {
             'type': 'confirm',
-            'message': 'shall we build a windows domain controller',
-            'name': 'windows_domain_controller',
-            'default': True,
-        },
-        {
-            'type': 'confirm',
-            'message': 'shall we build a windows server',
-            'name': 'windows_server',
-            'default': False,
-        },
-        {
-            'type': 'confirm',
-            'message': 'shall we build a windows client',
-            'name': 'windows_client',
-            'default': False,
-        },
-        {
-            'type': 'confirm',
-            'message': 'shall we build a kali linux machine for ad-hoc testing',
-            'name': 'kali_machine',
-            'default': False,
-        },
-        {
-            'type': 'confirm',
-            'message': 'shall we build zeek sensors',
-            'name': 'zeek_sensor',
-            'default': False,
-        },
-        {
-            'type': 'confirm',
             'message': 'shall we build a phantom server',
             'name': 'phantom_server',
             'default': False,
-        },
+        },       
         {
             'type': 'input',
             'message': 'phantom community username (my.phantom.us), required for phantom server',
@@ -394,27 +334,17 @@ starting configuration for AT-ST mech walker
     ]
     answers = prompt(questions)
     enabled = lambda x : 1 if x else 0
+    
     configuration._sections['environment']['phantom_server'] = enabled(answers['phantom_server'])
     if 'phantom_community_username' in answers:
         configuration._sections['phantom_settings']['phantom_community_username'] = answers['phantom_community_username']
     if 'phantom_community_password' in answers:
         configuration._sections['phantom_settings']['phantom_community_password'] = answers['phantom_community_password']
 
-    if (enabled(answers['windows_domain_controller'])):
-        configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
-    else:
-        configuration._sections['environment']['windows_domain_controller'] = enabled(answers['windows_domain_controller'])
-        configuration._sections['windows_server']['windows_server_join_domain'] = 0
-        configuration._sections['windows_client']['windows_client_join_domain'] = 0
-
-    configuration._sections['environment']['windows_server'] = enabled(answers['windows_server'])
-    configuration._sections['environment']['kali_machine'] = enabled(answers['kali_machine'])
-    configuration._sections['environment']['windows_client'] = enabled(answers['windows_client'])
-    configuration._sections['environment']['zeek_sensor'] = enabled(answers['zeek_sensor'])
 
     # write config file
-    with open(attack_range_config, 'w') as configfile:
+    with open(cloud_attack_range_config, 'w') as configfile:
         configuration.write(configfile)
-    print("> configuration file was written to: {0}, run `python attack_range.py build` to create a new attack_range\nyou can also edit this file to configure advance parameters".format(Path(attack_range_config).resolve()))
+    print("> configuration file was written to: {0}, run `python cloud_attack_range.py build` to create a new cloud_attack_range\nyou can also edit this file to configure advance parameters".format(Path(cloud_attack_range_config).resolve()))
     print("> setup has finished successfully ... exiting")
     sys.exit(0)
