@@ -45,7 +45,7 @@ starting program loaded for B1 battle droid
 
     # parse config
     attack_range_config = Path(config)
-    print (attack_range_config)
+
     if attack_range_config.is_file():
         print("attack_range is using config at path {0}".format(attack_range_config))
         configpath = str(attack_range_config)
