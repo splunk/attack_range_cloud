@@ -8,6 +8,7 @@ ansible/vars/vars.yml
 # conf
 cloud_attack_range.conf
 *.key
+*.pem
 
 # apps folder
 apps/*

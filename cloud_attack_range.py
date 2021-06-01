@@ -128,7 +128,7 @@ def test(args):
 def main(args):
     # grab arguments
     parser = argparse.ArgumentParser(
-        description="Use `attack_range.py action -h` to get help with any Attack Range action")
+        description="Use `cloud_attack_range.py action -h` to get help with any Attack Range action")
     parser.add_argument("-c", "--config", required=False, default="cloud_attack_range.conf",
                         help="path to the configuration file of the attack range")
     parser.add_argument("-v", "--version", default=False, action="version", version="version: {0}".format(VERSION),
@@ -164,16 +164,13 @@ def main(args):
                                     help="provide path to write configuration to")
     configure_parser.set_defaults(func=configure)
 
-    simulate_parser.add_argument("-acf", "--attack_chain_file", required=False,
-                                 help="attack chain file")
-
     # Simulation arguments
     simulate_parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
-                                 help="comma delimited list of MITRE ATT&CK technique ID to simulate in the "
-                                      "attack_range, example: T1117, T1118, requires --simulation flag")
-    # simulate_parser.add_argument("-sa", "--simulation_atomics", required=False, type=str, default="",
-    #                              help="specify dedicated Atomic Red Team atomics to simulate in the attack_range, "
-    #                                   "example: Regsvr32 remote COM scriptlet execution for T1117")
+                                 help="Specify an single atomic for AWS "
+                                      "attack_range, example:  T1136.003, requires --simulation flag")
+    simulate_parser.add_argument("-acf", "--attack_chain_file", required=False,
+                                 help="attack chain file")
+    
     simulate_parser.add_argument("-cu", "--clean_up", required=False, type=str, default="",
                                  help="cleanup simulations")
     simulate_parser.set_defaults(func=simulate)

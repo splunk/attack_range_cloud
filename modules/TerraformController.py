@@ -233,8 +233,6 @@ class TerraformController(IEnvironmentController):
         new_commands=[]
         objects = self.find_attack_yaml(path,techniques_arr)
 
-        print ("whaaaaa")
-
         if simulation_techniques and clean_up == 'no':
 
             for object in objects:
@@ -278,34 +276,34 @@ class TerraformController(IEnvironmentController):
         attack_chain_techniques=""
         clean_up_atomics=[]
 
-        if attack_chain_file and simulation_techniques =='no':
-            attack_chain_path = "attack_chain"
+        # if attack_chain_file and simulation_techniques =='no':
+        #     attack_chain_path = "attack_chain"
 
-            for root, dirs, files in os.walk(attack_chain_path):
-                for file in files:
-                    if os.path.splitext(file)[1] == ".yaml":
+        #     for root, dirs, files in os.walk(attack_chain_path):
+        #         for file in files:
+        #             if os.path.splitext(file)[1] == ".yaml":
                     
-                        if attack_chain_file in file:
-                            filepath = os.path.join(root,file)
-                            object = self.load_file(filepath)
+        #                 if attack_chain_file in file:
+        #                     filepath = os.path.join(root,file)
+        #                     object = self.load_file(filepath)
             
-            if clean_up == 'no':
+        #     if clean_up == 'no':
 
-                for atomics in object['atomic_tests_chain']:
-                    attack_chain_techniques+=((atomics['atomic_test_id'])+",")
-                attack_chain_techniques=(attack_chain_techniques[:-1])
+        #         for atomics in object['atomic_tests_chain']:
+        #             attack_chain_techniques+=((atomics['atomic_test_id'])+",")
+        #         attack_chain_techniques=(attack_chain_techniques[:-1])
                 
-                self.simulate_techniques(attack_chain_techniques,clean_up)
+        #         self.simulate_techniques(attack_chain_techniques,clean_up)
 
-            if clean_up == 'yes':
+        #     if clean_up == 'yes':
 
-                for atomics in object['atomic_tests_chain']:
+        #         for atomics in object['atomic_tests_chain']:
 
-                   clean_up_atomics.append(atomics['atomic_test_id'])
-                clean_up_atomics.reverse()
-                attack_chain_techniques = str(clean_up_atomics).replace('[\'', '').replace('\']', '').replace('\', \'', ',')
+        #            clean_up_atomics.append(atomics['atomic_test_id'])
+        #         clean_up_atomics.reverse()
+        #         attack_chain_techniques = str(clean_up_atomics).replace('[\'', '').replace('\']', '').replace('\', \'', ',')
 
-                self.simulate_techniques(attack_chain_techniques, clean_up)
+        #         self.simulate_techniques(attack_chain_techniques, clean_up)
 
             
         if simulation_techniques and attack_chain_file  =='no' and clean_up == 'no':
@@ -357,37 +355,6 @@ class TerraformController(IEnvironmentController):
             print()
 
 
-    # def dump(self, dump_name):
-    #     # download Cloudtrail logs from S3
-    #     # export Cloudwatch logs to S3 and then download them
-
-    #     folder = "attack_data/" + dump_name
-    #     os.mkdir(folder)
-
-    #     # Cloudtrail
-    #     if self.config['dump_cloudtrail_data'] == '1':
-    #         self.log.info("Dump Cloudtrail logs. This can take some time.")
-    #         aws_service.download_S3_bucket('AWSLogs', self.config['cloudtrail_s3_bucket'], folder, self.config['cloudtrail_data_from_last_x_hours'], self.config['cloudtrail_data_from_regions'].split(','))
-
-    #     # Cloudwatch
-    #     if self.config['dump_aws_eks_data'] == '1':
-    #         self.log.info("Dump AWS EKS logs from Cloudwatch. This can take some time.")
-    #         aws_service.download_cloudwatch_logs(self.config, folder)
-
-    #     # Sync to S3
-    #     if self.config['sync_to_s3_bucket'] == '1':
-    #         self.log.info("upload attack data to S3 bucket. This can take some time")
-    #         for file in self.getListOfFiles(folder):
-    #             self.log.info("upload file " + file  + " to S3 bucket.")
-    #             p = pathlib.Path(file)
-    #             new_path = str(pathlib.Path(*p.parts[1:]))
-    #             aws_service.upload_file_s3_bucket(self.config['s3_bucket_attack_data'], file, new_path)
-
-
-## helper functions
-
-    
-    
 
     def dump_attack_data(self, dump_name, last_sim):
         self.log.info("Dump log data")

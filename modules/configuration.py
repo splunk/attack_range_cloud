@@ -46,7 +46,7 @@ def get_random_password():
 def create_key_pair_aws(client):
     # create new ssh key
     epoch_time = str(int(time.time()))
-    ssh_key_name = getpass.getuser() + "-" + epoch_time[-5:] + ".key"
+    ssh_key_name = getpass.getuser() + "-" + epoch_time[-5:] + ".pem"
     # create ssh keys
     response = client.create_key_pair(KeyName=str(ssh_key_name)[:-4])
     with open(ssh_key_name, "w") as ssh_key:
@@ -58,7 +58,7 @@ def create_key_pair_aws(client):
 def check_for_generated_keys(answers):
     keys = []
     for file in os.listdir("."):
-        if file.endswith(".key"):
+        if file.endswith(".pem"):
             keys.append(Path(file).resolve())
     if len(keys) > 0:
         return True
@@ -68,7 +68,7 @@ def get_generated_keys():
     priv_keys = []
     pub_keys = []
     for file in os.listdir("."):
-        if file.endswith(".key"):
+        if file.endswith(".pem"):
             priv_keys.append(Path(file).resolve())
         if file.endswith(".pub"):
             pub_keys.append(Path(file).resolve())
@@ -282,6 +282,7 @@ starting configuration for AT-ST mech walker
             'default': "default",
         },
         
+        
 
     ]
 
@@ -299,6 +300,8 @@ starting configuration for AT-ST mech walker
         configuration._sections['range_settings']['public_key_path'] = answers['public_key_path']
     else:
         print("> using ssh public key: {}".format(configuration._sections['range_settings']['public_key_path']))
+
+
     # get region
     if 'region' in answers:
         configuration._sections['range_settings']['region'] = answers['region']
@@ -307,7 +310,7 @@ starting configuration for AT-ST mech walker
     # rest of configs
     configuration._sections['range_settings']['ip_whitelist'] = answers['ip_whitelist']
     configuration._sections['range_settings']['range_name'] = answers['range_name']
-    configuration._sections['range_settings']['atomic_red_team_path'] = answers['atomic_red_team_path']
+
 
     print("> configuring attack_range environment")
     questions = [
@@ -345,6 +348,14 @@ starting configuration for AT-ST mech walker
     # write config file
     with open(cloud_attack_range_config, 'w') as configfile:
         configuration.write(configfile)
+    
+    print("\n--------------------------PLEASE NOTE-------------------------------\n")
+    print("In order to have a fully functional Cloud Attack Range, you will need to set additional parameters in the cloud_attack_range.conf file\n")
+    print("- Collect CloudTrail logs:\nsqs_queue_url = <instructions in cloud_attack_range.conf.template>\n")
+    print("- Simulate cloud atomics from Atomic Red Team:\natomic_red_team_path = <instructions in cloud_attack_range.conf.template>\n")
+    print("--------------------------------------------------------------------------------\n")
+
     print("> configuration file was written to: {0}, run `python cloud_attack_range.py build` to create a new cloud_attack_range\nyou can also edit this file to configure advance parameters".format(Path(cloud_attack_range_config).resolve()))
-    print("> setup has finished successfully ... exiting")
+    print("> setup has finished successfully ... exiting\n\n")
+
     sys.exit(0)

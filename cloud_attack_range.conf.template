@@ -53,8 +53,9 @@ range_name = default
 
 
 atomic_red_team_path =
-# Clone atomic red team locally from https://github.com/redcanaryco/atomic-red-team 
-# Specify the path to atomic-red-team git repositories where the atomics are present
+# Clone atomic red team locally or use your fork: https://github.com/redcanaryco/atomic-red-team 
+# Specify the path to atomic-red-team git repositorywhere the atomics are present
+# Example: <path_to_cloned_repo>/atomic-red-team/atomics
 
 
 [splunk_settings]
@@ -174,31 +175,3 @@ repo_url = https://charts.bitnami.com/bitnami
 # specify the url of the repository
 # helm is used to deploy the app
 
-
-[attack_data]
-cloudtrail_s3_bucket = cloudtrail-cloud-attack-range
-# s3 bucket containing the cloudtrail logs
-
-dump_cloudtrail_data = 1
-# dump cloudtrail log data
-
-cloudtrail_data_from_last_x_hours = 1
-# get the cloudtrail data from the last x hours
-
-cloudtrail_data_from_regions = us-east-2,eu-central-1
-# comma-separated list of regions to export cloudtrail data. Don't use a space after comma.
-
-dump_aws_eks_data = 1
-# dump aws eks log data from Cloudwatch
-
-eks_data_from_last_x_hours = 6
-# get the eks data from the last x hours
-
-s3_bucket_cloudwatch_eks_export = cloud-attack-range-cloudwatch-export-eu-central-1
-# specify the s3 bucket to export the aws eks cloudwatch log group
-
-sync_to_s3_bucket = 0
-# sync attack data from dump command to s3 bucket
-
-s3_bucket_attack_data = attack-range-attack-data
-# S3 bucket to sync attack data from dump command
