@@ -228,45 +228,45 @@ class TerraformController(IEnvironmentController):
     #This Function is to simulate specific techniques 
     def simulate_techniques(self,simulation_techniques,clean_up, var_str='no'):
 
-        techniques_arr = simulation_techniques.split(',')
-        path = self.config['atomic_red_team_path']
-        new_commands=[]
-        objects = self.find_attack_yaml(path,techniques_arr)
+            techniques_arr = simulation_techniques.split(',')
+            path = self.config['atomic_red_team_path']
+            new_commands=[]
+            objects = self.find_attack_yaml(path,techniques_arr)
 
-        if simulation_techniques and clean_up == 'no':
+            if simulation_techniques and clean_up == 'no':
 
-            for object in objects:
-            
-                data = dict()
-                for atomic_tests in object['atomic_tests']:
-                    if 'cloud_provider' in atomic_tests:
-                        new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
-                        print("Execute - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
+                for object in objects:
+                
+                    data = dict()
+                    for atomic_tests in object['atomic_tests']:
+                        if 'cloud_provider' in atomic_tests:
+                            new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
+                            print("Execute - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
+                            
+                            rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
+                            
+                            function_call = rtemplate.render(**data)
+                            stream = os.popen(function_call)
+                            output = stream.read()
+                            print(output)
+
                         
-                        rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
-                        
-                        function_call = rtemplate.render(**data)
-                        stream = os.popen(function_call)
-                        output = stream.read()
-                        print(output)
 
-                    
+            if simulation_techniques and clean_up == 'yes':
 
-        if simulation_techniques and clean_up == 'yes':
+                for object in objects:
+                
+                    data = dict()
 
-            for object in objects:
-            
-                data = dict()
-
-                for atomic_tests in object['atomic_tests']:
-                    if 'cloud_provider' in atomic_tests:
-                        new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
-                        print("Clean up - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
-                        rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
-                        
-                        function_call = rtemplate.render(**data)
-                        stream = os.popen(function_call)
-                        output = stream.read()
+                    for atomic_tests in object['atomic_tests']:
+                        if 'cloud_provider' in atomic_tests:
+                            new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
+                            print("Clean up - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
+                            rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
+                            
+                            function_call = rtemplate.render(**data)
+                            stream = os.popen(function_call)
+                            output = stream.read()
                                         
                             
     # Main function :To be tested and refactored
@@ -276,34 +276,38 @@ class TerraformController(IEnvironmentController):
         attack_chain_techniques=""
         clean_up_atomics=[]
 
-        # if attack_chain_file and simulation_techniques =='no':
-        #     attack_chain_path = "attack_chain"
+        if self.config['atomic_red_team_path'] == '':
+            print(" ERROR: Atomic Red Team file path is not set")
+            sys.exit(1)
 
-        #     for root, dirs, files in os.walk(attack_chain_path):
-        #         for file in files:
-        #             if os.path.splitext(file)[1] == ".yaml":
+        if attack_chain_file and simulation_techniques =='no':
+            attack_chain_path = "attack_chain"
+
+            for root, dirs, files in os.walk(attack_chain_path):
+                for file in files:
+                    if os.path.splitext(file)[1] == ".yaml":
                     
-        #                 if attack_chain_file in file:
-        #                     filepath = os.path.join(root,file)
-        #                     object = self.load_file(filepath)
+                        if attack_chain_file in file:
+                            filepath = os.path.join(root,file)
+                            object = self.load_file(filepath)
             
-        #     if clean_up == 'no':
+            if clean_up == 'no':
 
-        #         for atomics in object['atomic_tests_chain']:
-        #             attack_chain_techniques+=((atomics['atomic_test_id'])+",")
-        #         attack_chain_techniques=(attack_chain_techniques[:-1])
+                for atomics in object['atomic_tests_chain']:
+                    attack_chain_techniques+=((atomics['atomic_test_id'])+",")
+                attack_chain_techniques=(attack_chain_techniques[:-1])
                 
-        #         self.simulate_techniques(attack_chain_techniques,clean_up)
+                self.simulate_techniques(attack_chain_techniques,clean_up)
 
-        #     if clean_up == 'yes':
+            if clean_up == 'yes':
 
-        #         for atomics in object['atomic_tests_chain']:
+                for atomics in object['atomic_tests_chain']:
 
-        #            clean_up_atomics.append(atomics['atomic_test_id'])
-        #         clean_up_atomics.reverse()
-        #         attack_chain_techniques = str(clean_up_atomics).replace('[\'', '').replace('\']', '').replace('\', \'', ',')
+                   clean_up_atomics.append(atomics['atomic_test_id'])
+                clean_up_atomics.reverse()
+                attack_chain_techniques = str(clean_up_atomics).replace('[\'', '').replace('\']', '').replace('\', \'', ',')
 
-        #         self.simulate_techniques(attack_chain_techniques, clean_up)
+                self.simulate_techniques(attack_chain_techniques, clean_up)
 
             
         if simulation_techniques and attack_chain_file  =='no' and clean_up == 'no':
@@ -315,10 +319,7 @@ class TerraformController(IEnvironmentController):
         if simulation_techniques and attack_chain_file  =='no' and clean_up == 'yes':
             self.simulate_techniques(simulation_techniques,clean_up
                 )
-
-            print("Clean Up- cloud atomic test:",simulation_techniques)
-
-        
+     
         
     def list_machines(self):
         if self.config['cloud_provider'] == 'aws':
