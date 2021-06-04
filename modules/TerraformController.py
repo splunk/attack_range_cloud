@@ -32,8 +32,7 @@ class TerraformController(IEnvironmentController):
 
         if self.config['cloud_provider'] == 'aws':
             self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/aws'),variables=variables, parallelism=15 ,state=config["statepath"])
-        # elif self.config['cloud_provider'] == 'azure':
-        #     self.terraform = Terraform(working_dir=os.path.join(os.path.dirname(__file__), '../terraform/azure'),variables=variables, parallelism=15 ,state=config["statepath"])
+    
 
     def build(self):
 
@@ -173,14 +172,6 @@ class TerraformController(IEnvironmentController):
 
         return result_tests
 
-    # def load_file(self, file_path):
-    #     with open(file_path, 'r', encoding="utf-8") as stream:
-    #         try:
-    #             file = list(yaml.safe_load_all(stream))[0]
-    #         except yaml.YAMLError as exc:
-    #             self.log.error(exc)
-    #             sys.exit("ERROR: reading {0}".format(file_path))
-    #     return file
 
     def load_file(self, file_path):
         with open(file_path, 'r') as stream:
@@ -239,7 +230,8 @@ class TerraformController(IEnvironmentController):
                 
                     data = dict()
                     for atomic_tests in object['atomic_tests']:
-                        if 'cloud_provider' in atomic_tests:
+                        if (atomic_tests['executor']['name'])  == 'aws':
+                        
                             new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
                             print("Execute - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
                             
@@ -259,7 +251,7 @@ class TerraformController(IEnvironmentController):
                     data = dict()
 
                     for atomic_tests in object['atomic_tests']:
-                        if 'cloud_provider' in atomic_tests:
+                        if (atomic_tests['executor']['name'])  == 'aws':
                             new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
                             print("Clean up - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
                             rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
