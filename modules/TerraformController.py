@@ -230,8 +230,8 @@ class TerraformController(IEnvironmentController):
                 
                     data = dict()
                     for atomic_tests in object['atomic_tests']:
-                        if (atomic_tests['executor']['name'])  == 'aws':
-                        
+                        if 'iaas:aws' in (atomic_tests['supported_platforms']):
+                             
                             new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
                             print("Execute - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
                             
@@ -251,7 +251,7 @@ class TerraformController(IEnvironmentController):
                     data = dict()
 
                     for atomic_tests in object['atomic_tests']:
-                        if (atomic_tests['executor']['name'])  == 'aws':
+                        if 'iaas:aws' in (atomic_tests['supported_platforms']):
                             new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
                             print("Clean up - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
                             rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
