@@ -138,14 +138,14 @@ def main(args):
     actions_parser = parser.add_subparsers(title="Attack Range actions", dest="action")
     configure_parser = actions_parser.add_parser("configure", help="configure a new attack range")
     build_parser = actions_parser.add_parser("build", help="Builds attack range instances")
-    simulate_parser = actions_parser.add_parser("simulate", help="Simulates attack techniques")
+    #simulate_parser = actions_parser.add_parser("simulate", help="Simulates attack techniques")
     destroy_parser = actions_parser.add_parser("destroy", help="destroy attack range instances")
     stop_parser = actions_parser.add_parser("stop", help="stops attack range instances")
     resume_parser = actions_parser.add_parser("resume", help="resumes previously stopped attack range instances")
     show_parser = actions_parser.add_parser("show", help="list machines")
-    test_parser = actions_parser.add_parser("test")
-    dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
-    replay_parser = actions_parser.add_parser("replay", help="replay dumps into the Splunk Enterprise server")
+    # test_parser = actions_parser.add_parser("test")
+    # dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
+    # replay_parser = actions_parser.add_parser("replay", help="replay dumps into the Splunk Enterprise server")
 
     # Build arguments
     build_parser.set_defaults(func=build)
@@ -165,15 +165,15 @@ def main(args):
     configure_parser.set_defaults(func=configure)
 
     # Simulation arguments
-    simulate_parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
-                                 help="Specify an single atomic for AWS "
-                                      "attack_range, example:  T1136.003, requires --simulation flag")
-    simulate_parser.add_argument("-acf", "--attack_chain_file", required=False,
-                                 help="attack chain file")
+    # simulate_parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
+    #                              help="Specify an single atomic for AWS "
+    #                                   "attack_range, example:  T1136.003, requires --simulation flag")
+    # simulate_parser.add_argument("-acf", "--attack_chain_file", required=False,
+    #                              help="attack chain file")
     
-    simulate_parser.add_argument("-cu", "--clean_up", required=False, type=str, default="",
-                                 help="cleanup simulations")
-    simulate_parser.set_defaults(func=simulate)
+    # simulate_parser.add_argument("-cu", "--clean_up", required=False, type=str, default="",
+    #                              help="cleanup simulations")
+    # simulate_parser.set_defaults(func=simulate)
 
     # # Dump  Arguments
     # dump_parser.add_argument("-dn", "--dump_name", required=True,
