@@ -182,16 +182,19 @@ class TerraformController(IEnvironmentController):
                 sys.exit("ERROR: reading {0}".format(file_path))
         return object
 
-    def find_attack_yaml(self,path,techniques_arr):
+    def find_attack_yaml(self,path,simulation_techniques):
         objects = []
         for root, dirs, files in os.walk(path):
                 for file in files:
                     if os.path.splitext(file)[1] == ".yaml":
-                        for t in techniques_arr:
-                            if t in file:
-                                filepath = os.path.join(root,file)
-                                object = self.load_file(filepath)
-                                objects.append(object)
+                        file = file.replace('.yaml','')
+                       
+                        if simulation_techniques == file:
+                            print("helllos")
+                            filename = file + ".yaml"
+                            filepath = os.path.join(root,filename)                
+                            object = self.load_file(filepath)
+                            objects.append(object)
 
         return objects
     #This Function is to replace variables in the atomic yamls
@@ -213,16 +216,20 @@ class TerraformController(IEnvironmentController):
 
                 if key in old_command:
                     new_command = old_command.replace(key,value['default']).replace('#{','').replace('}','')
-                    
+        
+        if  '$PathToAtomicsFolder' in  new_command:
+            new_command = new_command.replace('$PathToAtomicsFolder',self.config['atomic_red_team_path'])  
+            
         return (new_command)
 
     #This Function is to simulate specific techniques 
     def simulate_techniques(self,simulation_techniques,clean_up, var_str='no'):
 
-            techniques_arr = simulation_techniques.split(',')
+            
             path = self.config['atomic_red_team_path']
             new_commands=[]
-            objects = self.find_attack_yaml(path,techniques_arr)
+            objects = self.find_attack_yaml(path,simulation_techniques)
+            
 
             if simulation_techniques and clean_up == 'no':
 
@@ -232,7 +239,8 @@ class TerraformController(IEnvironmentController):
                     for atomic_tests in object['atomic_tests']:
                         if 'iaas:aws' in (atomic_tests['supported_platforms']):
                              
-                            new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
+                            new_command = self.replace_simulation_vars(atomic_tests,clean_up)
+                                                  
                             print("Execute - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
                             
                             rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
