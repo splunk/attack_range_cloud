@@ -40,7 +40,7 @@ class TerraformController():
         if self.config["kubernetes"]=="1":
             kubernetes_service.delete_application(self.config, self.log)
         self.log.info("[action] > destroy\n")
-        return_code, stdout, stderr = self.terraform.destroy(capture_output='yes', no_color=IsNotFlagged)
+        return_code, stdout, stderr = self.terraform.destroy(capture_output='yes', no_color=IsNotFlagged, force=IsNotFlagged, auto_approve=True)
         self.log.info("attack_range has been destroy using terraform successfully")
 
 
