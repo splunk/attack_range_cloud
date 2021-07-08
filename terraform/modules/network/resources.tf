@@ -8,7 +8,7 @@ locals {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "2.6.0"
+  version = "3.2.0"
 
   name                 = "vpc_${var.config.key_name}"
   cidr                 = "10.0.0.0/16"
