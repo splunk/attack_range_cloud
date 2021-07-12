@@ -24,7 +24,8 @@ def get_single_instance_public_ip(ec2_name, config):
 
 def get_all_instances(config):
     key_name = config['key_name']
-    client = boto3.client('ec2')
+    region = config['region']
+    client = boto3.client('ec2', region_name=region)
     response = client.describe_instances(
         Filters=[
             {
@@ -39,7 +40,8 @@ def get_all_instances(config):
             if instance['State']['Name']!='terminated':
                 if len(instance['Tags']) > 0:
                     str = instance['Tags'][0]['Value']
-                    if str.startswith('cloud-attack-range'):
+                    if (config['range_name'] in str) and (config['key_name'] in str) and ('cloud-ar' in str):
+                        
                         instances.append(instance)
 
     return instances
@@ -62,9 +64,10 @@ def check_ec2_instance_state(ec2_name, state, config):
     return (instance['State']['Name'] == state)
 
 
-def change_ec2_state(instances, new_state, log):
+def change_ec2_state(instances, new_state, log, config):
 
-    client = boto3.client('ec2')
+    region = config['region']
+    client = boto3.client('ec2', region_name=region)
 
     if len(instances) == 0:
         log.error(ec2_name + ' not found as AWS EC2 instance.')

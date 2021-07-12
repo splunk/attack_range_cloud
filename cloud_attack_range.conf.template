@@ -1,4 +1,4 @@
-# This file contains possible settings you can use to configure Attack Range
+	# This file contains possible settings you can use to configure Attack Range
 
 [global]
 log_path = attack_range.log
@@ -8,12 +8,20 @@ log_level = INFO
 # Sets the log level for the logging
 # Possible values: INFO, ERROR
 
-
-[range_settings]
 attack_range_password = I-l1ke-Attack-Range!
 # Master password for all administrative accounts
 # default I-l1ke-Attack-Range!
 
+cloud_provider = aws
+# cloud provider to deploy the Attack Range
+# example_1: aws
+# example_2: azure
+
+[aws]
+instance_type_ec2 = t2.2xlarge
+# instance type for the aws ec2 instances
+
+[range_settings]
 key_name = cloud-attack-range
 # Specify the name of the EC2 key pair name
 # This is only needed for modes: terraform and packer
@@ -30,7 +38,24 @@ private_key_path = ~/.ssh/id_rsa
 region = eu-central-1
 # Specify the aws region in which you want to build the attack range
 # please ensure that aws_cli has the same region specified
-# This is only needed for modes: terraform and packer
+# This is only needed for modes: terraform and 
+
+public_key_path = ~/.ssh/id_rsa.pub
+# Only for Azure needed
+
+range_name = default
+# Specify a unique name for the assets in a region
+# Setting this allows you to deploy additional ranges with the same key_name
+# An example would be for user1 and user2 testing in seperate environments
+# or user1 testing multiple use cases.
+# we suggest to use multiple attack_range.conf files when you deploy multiple
+# attack ranges.
+
+
+atomic_red_team_path =
+# Clone atomic red team locally or use your fork: https://github.com/redcanaryco/atomic-red-team 
+# Specify the path to atomic-red-team git repositorywhere the atomics are present
+# Example: <path_to_cloned_repo>/atomic-red-team/atomics
 
 
 [splunk_settings]
@@ -107,13 +132,13 @@ phantom_server = 0
 # possible values: 1, 0
 
 
-
 [splunk_server]
 # customize the splunk server
 
 splunk_server_private_ip = 10.0.1.12
 # specify the splunk server's private ip
 # for mode terraform should be in subnet: 10.0.1.0/24
+
 
 
 [phantom_server]
@@ -150,31 +175,3 @@ repo_url = https://charts.bitnami.com/bitnami
 # specify the url of the repository
 # helm is used to deploy the app
 
-
-[attack_data]
-cloudtrail_s3_bucket = cloudtrail-cloud-attack-range
-# s3 bucket containing the cloudtrail logs
-
-dump_cloudtrail_data = 1
-# dump cloudtrail log data
-
-cloudtrail_data_from_last_x_hours = 1
-# get the cloudtrail data from the last x hours
-
-cloudtrail_data_from_regions = us-east-2,eu-central-1
-# comma-separated list of regions to export cloudtrail data. Don't use a space after comma.
-
-dump_aws_eks_data = 1
-# dump aws eks log data from Cloudwatch
-
-eks_data_from_last_x_hours = 6
-# get the eks data from the last x hours
-
-s3_bucket_cloudwatch_eks_export = cloud-attack-range-cloudwatch-export-eu-central-1
-# specify the s3 bucket to export the aws eks cloudwatch log group
-
-sync_to_s3_bucket = 0
-# sync attack data from dump command to s3 bucket
-
-s3_bucket_attack_data = attack-range-attack-data
-# S3 bucket to sync attack data from dump command

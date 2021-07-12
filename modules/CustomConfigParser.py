@@ -14,6 +14,15 @@ class CustomConfigParser:
         if (key_name_regex.search(self.settings['key_name']) != None):
             print("ERROR - with configuration file at: {0}, no special characters, spaces, single quotes allowed in key_name: {1}".format(CONFIG_PATH,self.settings['key_name']))
             sys.exit(1)
+            
+        range_name_regex = re.compile('[@!#$%^&*()\' <>?/\|}{~:]')
+        if (range_name_regex.search(self.settings['range_name']) != None):
+            print("ERROR - with configuration file at: {0}, no special characters, spaces, single quotes allowed in range_name: {1}".format(
+                CONFIG_PATH, self.settings['range_name']))
+            sys.exit(1)
+
+        if '0.0.0.0/0' in self.settings['ip_whitelist']:
+            print("WARNING - with configuration file at: {0}, the attack range will be public and open to the world, it is recommended that users secure attack_range servers by whitelisting only the public IP address in this format: ip_whitelist= <X.X.X.X>/32".format(CONFIG_PATH))
 
 
     def load_conf(self,CONFIG_PATH):

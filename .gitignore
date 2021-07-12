@@ -7,6 +7,8 @@ ansible/vars/vars.yml
 
 # conf
 cloud_attack_range.conf
+*.key
+*.pem
 
 # apps folder
 apps/*
@@ -22,7 +24,12 @@ attack_range.log
 
 ## Terraform ignores
 # Local .terraform directories
+terraform/aws/.terraform/
+terraform/azure/.terraform/
+terraform/aws/state/
+terraform/azure/state/
 terraform/.terraform/
+terraform/aws/.terraform.lock.hcl
 
 # .tfstate files
 *.tfstate
