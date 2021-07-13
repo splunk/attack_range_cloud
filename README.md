@@ -5,12 +5,9 @@ The Cloud Attack Range is a detection development platform, which solves three m
 
 ## Building 👷‍♂️
 
-Attack Range can be built in three different ways:
+Cloud Attack Range can be built is currently:
 
-- **cloud-only**, this project
-- **cloud** using terraform and AWS, see [attack\_range](https://github.com/splunk/attack_range)
-- **locally** with vagrant and virtualbox, see [attack\_range\_local](https://github.com/splunk/attack_range_local/)
-
+- **cloud-only**, Specifically simulate attacks against AWS
 
 
 ## Architecture 🏯
@@ -18,7 +15,8 @@ The Cloud Attack Range consists of:
 - pre-configured Splunk server with AWS Cloudtrail logs and Kubernetes logs
 - pre-configured Phantom server
 - AWS Elastic Kubernetes Service with a Wordpress app and [Splunk Connect for Kubernetes](https://github.com/splunk/splunk-connect-for-kubernetes)
-- integrated [Leonidas](https://github.com/FSecureLABS/leonidas) cloud attacks
+
+- integrated [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team) cloud attacks
 
 ![Architecture](docs/cloud_attack_range_architecture.png)
 
@@ -37,15 +35,22 @@ Cloud Attack Range supports different actions:
 - Destroy Cloud Attack Range
 - Stop Cloud Attack Range
 - Resume Cloud Attack Range
-- Dump Log Data from Cloud Attack Range
 
-### Build Cloud Attack Range
+### Cloud Attack Range Commands
+- Configure your Cloud Attack Range .conf
+```
+- [x] python cloud_attack_range.py configure
+```
+
+### Cloud Attack Range Commands
 - Build Cloud Attack Range
 ```
-python cloud_attack_range.py -a build
+- [x] python cloud_attack_range.py build
+- [x] python cloud_attack_range.py configure
 ```
 
 ### Perform Cloud Attack Simulation
+[Work in Progress]
 - Perform Cloud Attack Simulation by Mitre technique
 ```
 python cloud_attack_range.py -a simulate -st T1136.003
@@ -62,25 +67,19 @@ python cloud_attack_range.py -a simulate -sf leonidas/definitions/persistence/ad
 ### Destroy Cloud Attack Range
 - Destroy Cloud Attack Range
 ```
-python cloud_attack_range.py -a destroy
+python cloud_attack_range.py destroy
 ```
 
 ### Stop Cloud Attack Range
 - Stop Cloud Attack Range
 ```
-python cloud_attack_range.py -a stop
+python cloud_attack_range.py stop
 ```
 
 ### Resume Cloud Attack Range
 - Resume Cloud Attack Range
 ```
-python cloud_attack_range.py -a resume
-```
-
-### Dump Log Data from Cloud Attack Range
-- Dump Log Data from Cloud Attack Range
-```
-python cloud_attack_range.py -a dump -dn data_dump
+python cloud_attack_range.py resume
 ```
 
 ## Features 💍
@@ -120,6 +119,8 @@ If you have questions or need support, you can:
 ## Author
 * [Patrick Bareiß](https://twitter.com/bareiss_patrick)
 * [Bhavin Patel](https://twitter.com/hackpsy)
+* [Jose Hernandez](https://twitter.com/d1vious)
+
 
 
 ## License
