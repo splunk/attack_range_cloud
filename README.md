@@ -1,8 +1,7 @@
 # Splunk Cloud Attack Range ⚔️
 
 ## Purpose 🛡
-The Cloud Attack Range is a detection development platform, which solves three main challenges in detection engineering. First, the user is able to build quickly a small lab infrastructure as close as possible to a cloud environment. Second, the Attack Range performs attack simulation using different engines such as [Leonidas](https://github.com/FSecureLABS/leonidas) in order to generate real attack data. Third, it integrates seamlessly into any Continuous Integration / Continuous Delivery (CI/CD) pipeline to automate the detection rule testing process.  
-
+The Cloud Attack Range is a detection development platform, which solves three main challenges in detection engineering. First, the user is able to build quickly a small lab infrastructure as close as possible to a cloud environment. Second, the Attack Range performs attack simulation using different engines such as [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team) in order to generate real attack data.
 ## Building 👷‍♂️
 
 Cloud Attack Range can be built is currently:
@@ -46,22 +45,14 @@ Cloud Attack Range supports different actions:
 - Build Cloud Attack Range
 ```
 - [x] python cloud_attack_range.py build
-- [x] python cloud_attack_range.py configure
+
 ```
 
 ### Perform Cloud Attack Simulation
 [Work in Progress]
 - Perform Cloud Attack Simulation by Mitre technique
 ```
-python cloud_attack_range.py -a simulate -st T1136.003
-```
-- Perform Cloud Attack Simulation by Leonidas attack file
-```
-python cloud_attack_range.py -a simulate -sf leonidas/definitions/persistence/add_api_key_to_iam_user.yml
-```
-- Perform Cloud Attack Simulation by Leonidas attack file using custom variables and without prompt:
-```
-python cloud_attack_range.py -a simulate -sf leonidas/definitions/persistence/add_api_key_to_iam_user.yml -sv "user=patrick-test" --force
+python cloud_attack_range.py simulate -st T1136.003
 ```
 
 ### Destroy Cloud Attack Range
@@ -100,10 +91,9 @@ python cloud_attack_range.py resume
   * For a free development license (100 actions per day) register [here](https://my.phantom.us/login/?next=/)
   * Enable or disable [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [cloud_attack_range.conf](cloud_attack_range.conf)
 
-- [Leonidas](https://github.com/FSecureLABS/leonidas)
-  * Attack Simulation with [Leonidas](https://github.com/FSecureLABS/leonidas)
-  * Uses the cloud attack TTPs in [leonidas/definitions](https://github.com/FSecureLABS/leonidas/tree/6701e9bbb76614a4ba2a360edd140eba9fdc647f/definitions)
-  * Leonidas uses [Cloud ATT&CK Mitre IDs](https://attack.mitre.org/matrices/enterprise/cloud/)
+-  [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
+  * Attack Simulation with  [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
+  * Uses Attack TTPs from [Cloud ATT&CK Mitre IDs](https://attack.mitre.org/matrices/enterprise/cloud/)
 
 
 ## Support 📞
