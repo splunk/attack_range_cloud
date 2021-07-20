@@ -241,7 +241,7 @@ class TerraformController(IEnvironmentController):
                              
                             new_command = self.replace_simulation_vars(atomic_tests,clean_up)
                                                   
-                            print("Execute - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
+                            print("Executing TTP {0}:\n       {1}".format(object['attack_technique'], new_command))
                             
                             rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
                             
@@ -249,6 +249,7 @@ class TerraformController(IEnvironmentController):
                             stream = os.popen(function_call)
                             output = stream.read()
                             print(output)
+                            print("Finished Execution")
 
                         
 
@@ -261,7 +262,7 @@ class TerraformController(IEnvironmentController):
                     for atomic_tests in object['atomic_tests']:
                         if 'iaas:aws' in (atomic_tests['supported_platforms']):
                             new_command = self.replace_simulation_vars(atomic_tests,clean_up)                           
-                            print("Clean up - AWS technique {0}:\n       {1}".format(object['attack_technique'], new_command))
+                            print("Clean up {0}:\n       {1}".format(object['attack_technique'], new_command))
                             rtemplate = Environment(loader=BaseLoader()).from_string(new_command)
                             
                             function_call = rtemplate.render(**data)
@@ -311,6 +312,7 @@ class TerraformController(IEnvironmentController):
 
             
         if simulation_techniques and attack_chain_file  =='no' and clean_up == 'no':
+            print ("no")
             print("Simuating- cloud atomic test",simulation_techniques)
             self.simulate_techniques(simulation_techniques,clean_up
                 )
