@@ -21,7 +21,7 @@ import time
 
 import os
 
-CONFIG_TEMPLATE = 'cloud_attack_range.conf.template'
+CONFIG_TEMPLATE = 'attack_range_cloud.conf.template'
 
 def load_config_template(CONFIG_TEMPLATE):
     settings = {}
@@ -94,13 +94,13 @@ def check_reuse_keys(answers):
         return True
 
 def new(config):
-    cloud_attack_range_config = Path(config)
+    attack_range_cloud_config = Path(config)
     print(config)
-    if cloud_attack_range_config.is_file():
+    if attack_range_cloud_config.is_file():
         questions = [
         {
             'type': 'confirm',
-            'message': 'File {0} already exist, are you sure you want to continue?\nTHIS WILL OVERWRITE YOUR CURRENT CONFIG!'.format(cloud_attack_range_config),
+            'message': 'File {0} already exist, are you sure you want to continue?\nTHIS WILL OVERWRITE YOUR CURRENT CONFIG!'.format(attack_range_cloud_config),
             'name': 'continue',
             'default': True,
         },
@@ -113,7 +113,7 @@ def new(config):
             print("> exiting, to create a unique configuration file in another location use the --config flag")
             sys.exit(0)
 
-        configpath = str(cloud_attack_range_config)
+        configpath = str(attack_range_cloud_config)
 
     print("""
            ________________
@@ -346,16 +346,16 @@ starting configuration for AT-ST mech walker
 
 
     # write config file
-    with open(cloud_attack_range_config, 'w') as configfile:
+    with open(attack_range_cloud_config, 'w') as configfile:
         configuration.write(configfile)
     
     print("\n--------------------------PLEASE NOTE-------------------------------\n")
-    print("In order to have a fully functional Cloud Attack Range, you will need to set additional parameters in the cloud_attack_range.conf file\n")
-    print("- Collect CloudTrail logs:\nsqs_queue_url = <instructions in cloud_attack_range.conf.template>\n")
-    print("- Simulate cloud atomics from Atomic Red Team:\natomic_red_team_path = <instructions in cloud_attack_range.conf.template>\n")
+    print("In order to have a fully functional Attack Range Cloud, you will need to set additional parameters in the attack_range_cloud.conf file\n")
+    print("- Collect CloudTrail logs:\nsqs_queue_url = <instructions in attack_range_cloud.conf.template>\n")
+    print("- Simulate cloud atomics from Atomic Red Team:\natomic_red_team_path = <instructions in attack_range_cloud.conf.template>\n")
     print("--------------------------------------------------------------------------------\n")
 
-    print("> configuration file was written to: {0}, run `python cloud_attack_range.py build` to create a new cloud_attack_range\nyou can also edit this file to configure advance parameters".format(Path(cloud_attack_range_config).resolve()))
+    print("> configuration file was written to: {0}, run `python attack_range_cloud.py build` to create a new attack_range_cloud\nyou can also edit this file to configure advance parameters".format(Path(attack_range_cloud_config).resolve()))
     print("> setup has finished successfully ... exiting\n\n")
 
     sys.exit(0)

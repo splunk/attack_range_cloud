@@ -6,7 +6,7 @@ ansible/vars/vars.yml
 *.idea
 
 # conf
-cloud_attack_range.conf
+attack_range_cloud.conf
 *.key
 *.pem
 

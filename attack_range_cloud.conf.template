@@ -22,7 +22,7 @@ instance_type_ec2 = t2.2xlarge
 # instance type for the aws ec2 instances
 
 [range_settings]
-key_name = cloud-attack-range
+key_name = attack-range-cloud
 # Specify the name of the EC2 key pair name
 # This is only needed for modes: terraform and packer
 
@@ -89,7 +89,7 @@ splunk_security_essentials_app = splunk-security-essentials_312.tgz
 
 splunk_aws_app = splunk-add-on-for-amazon-web-services_500.tgz
 # Specify the Splunk AWS App
-# Will be only installed when cloud_attack_range=1
+# Will be only installed when attack_range_cloud=1
 
 
 [phantom_settings]
@@ -138,7 +138,6 @@ phantom_server = 0
 splunk_server_private_ip = 10.0.1.12
 # specify the splunk server's private ip
 # for mode terraform should be in subnet: 10.0.1.0/24
-
 
 
 [phantom_server]

@@ -128,8 +128,8 @@ def test(args):
 def main(args):
     # grab arguments
     parser = argparse.ArgumentParser(
-        description="Use `cloud_attack_range.py action -h` to get help with any Attack Range action")
-    parser.add_argument("-c", "--config", required=False, default="cloud_attack_range.conf",
+        description="Use `attack_range_cloud.py action -h` to get help with any Attack Range action")
+    parser.add_argument("-c", "--config", required=False, default="attack_range_cloud.conf",
                         help="path to the configuration file of the attack range")
     parser.add_argument("-v", "--version", default=False, action="version", version="version: {0}".format(VERSION),
                         help="shows current attack_range version")
@@ -162,7 +162,7 @@ def main(args):
     resume_parser.set_defaults(func=resume)
 
     # Configure arguments
-    configure_parser.add_argument("-c", "--config", required=False, type=str, default='cloud_attack_range.conf',
+    configure_parser.add_argument("-c", "--config", required=False, type=str, default='attack_range_cloud.conf',
                                     help="provide path to write configuration to")
     configure_parser.set_defaults(func=configure)
 
