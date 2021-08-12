@@ -22,8 +22,8 @@ starting program loaded for B1 battle droid
           .-~~~-.
   .- ~ ~-(       )_ _
  /                     ~ -.
-|   Cloud Attack Range     \
- '                        .'
+|   Attack Range Cloud     |
+ '                        ,
   ` ~- . _____________ . `
           ||/__'`.
           |//()'-.:
@@ -144,6 +144,7 @@ def main(args):
     resume_parser = actions_parser.add_parser("resume", help="resumes previously stopped attack range instances")
     show_parser = actions_parser.add_parser("show", help="list machines")
 
+    # Use attack range to use these functions
     # test_parser = actions_parser.add_parser("test")
     # dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
     # replay_parser = actions_parser.add_parser("replay", help="replay dumps into the Splunk Enterprise server")
@@ -168,12 +169,12 @@ def main(args):
     # Simulation arguments
     simulate_parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
                                  help="Specify an single atomic for AWS "
-                                      "attack_range, example:  T1136.003, requires --simulation flag")
+                                      "attack_range, example:  T1098, requires --simulation flag")
     
     simulate_parser.add_argument("-cu", "--clean_up", required=False, type=str, default="",
                                  help="cleanup simulations")
-    simulate_parser.add_argument("-acf", "--attack_chain_file", required=False,
-                                 help="attack chain file")
+    # simulate_parser.add_argument("-acf", "--attack_chain_file", required=False,
+    #                              help="attack chain file")
     simulate_parser.set_defaults(func=simulate)
 
     # Dump  Arguments
