@@ -60,9 +60,6 @@ starting program loaded for B1 battle droid
     log = logger.setup_logging(config['log_path'], config['log_level'])
     log.info("INIT - attack_range v" + str(VERSION))
 
-    # if ARG_VERSION:
-    #     log.info("version: {0}".format(VERSION))
-    #     sys.exit(0)
 
     return TerraformController(config, log), config, log
 
@@ -77,18 +74,16 @@ def show(args):
 def simulate(args):
     controller, config, _ = init(args)
     simulation_techniques = args.simulation_technique
-    attack_chain_file = args.attack_chain_file
     clean_up = args.clean_up
 
     # lets give CLI priority over config file for pre-configured techniques
     if not simulation_techniques:
         simulation_techniques = 'no'
-    if not attack_chain_file:
-        attack_chain_file = 'no'
+    
     if not clean_up:
         clean_up = 'no'
 
-    return controller.simulate(simulation_techniques,attack_chain_file,clean_up)
+    return controller.simulate(simulation_techniques,clean_up)
 
 
 def dump(args):
@@ -183,18 +178,6 @@ def main(args):
     # dump_parser.add_argument("--last-sim", required=False, action='store_true',
     #                          help="overrides dumps.yml time and dumps from the start of previous simulation")
     # dump_parser.set_defaults(func=dump)
-
-    # # Replay Arguments
-    # replay_parser.add_argument("-dn", "--dump_name", required=True,
-    #                            help="name for the dumped attack data")
-    # replay_parser.add_argument("--dump", required=False,
-    #                     help="name of the dump as defined in attack_data/dumps.yml")
-    # replay_parser.set_defaults(func=replay)
-
-    # # Test Arguments
-    # test_parser.add_argument("-tf", "--test_file", required=True,
-    #                          type=str, default="", help='test file for test command')
-    # test_parser.set_defaults(func=test)
 
     # Show arguments
     show_parser.add_argument("-m", "--machines", required=False, default=False,

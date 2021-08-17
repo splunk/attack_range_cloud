@@ -271,54 +271,54 @@ class TerraformController(IEnvironmentController):
                                         
                             
     # Main function :To be tested and refactored
-    def simulate(self, simulation_techniques,attack_chain_file,clean_up, var_str='no'):
+    def simulate(self, simulation_techniques,clean_up, var_str='no'):
 
 
-        attack_chain_techniques=""
+        
         clean_up_atomics=[]
 
         if self.config['atomic_red_team_path'] == '':
             print(" ERROR: Atomic Red Team file path is not set")
             sys.exit(1)
 
-        if attack_chain_file and simulation_techniques =='no':
-            attack_chain_path = "attack_chain"
+        # if attack_chain_file and simulation_techniques =='no':
+        #     attack_chain_path = "attack_chain"
 
-            for root, dirs, files in os.walk(attack_chain_path):
-                for file in files:
-                    if os.path.splitext(file)[1] == ".yaml":
+        #     for root, dirs, files in os.walk(attack_chain_path):
+        #         for file in files:
+        #             if os.path.splitext(file)[1] == ".yaml":
                     
-                        if attack_chain_file in file:
-                            filepath = os.path.join(root,file)
-                            object = self.load_file(filepath)
+        #                 if attack_chain_file in file:
+        #                     filepath = os.path.join(root,file)
+        #                     object = self.load_file(filepath)
             
-            if clean_up == 'no':
+        #     if clean_up == 'no':
 
-                for atomics in object['atomic_tests_chain']:
-                    attack_chain_techniques+=((atomics['atomic_test_id'])+",")
-                attack_chain_techniques=(attack_chain_techniques[:-1])
+        #         for atomics in object['atomic_tests_chain']:
+        #             attack_chain_techniques+=((atomics['atomic_test_id'])+",")
+        #         attack_chain_techniques=(attack_chain_techniques[:-1])
                 
-                self.simulate_techniques(attack_chain_techniques,clean_up)
+        #         self.simulate_techniques(attack_chain_techniques,clean_up)
 
-            if clean_up == 'yes':
+        #     if clean_up == 'yes':
 
-                for atomics in object['atomic_tests_chain']:
+        #         for atomics in object['atomic_tests_chain']:
 
-                   clean_up_atomics.append(atomics['atomic_test_id'])
-                clean_up_atomics.reverse()
-                attack_chain_techniques = str(clean_up_atomics).replace('[\'', '').replace('\']', '').replace('\', \'', ',')
+        #            clean_up_atomics.append(atomics['atomic_test_id'])
+        #         clean_up_atomics.reverse()
+        #         attack_chain_techniques = str(clean_up_atomics).replace('[\'', '').replace('\']', '').replace('\', \'', ',')
 
-                self.simulate_techniques(attack_chain_techniques, clean_up)
+        #         self.simulate_techniques(attack_chain_techniques, clean_up)
 
             
-        if simulation_techniques and attack_chain_file  =='no' and clean_up == 'no':
+        if simulation_techniques and clean_up == 'no':
             print ("no")
             print("Simuating- cloud atomic test",simulation_techniques)
             self.simulate_techniques(simulation_techniques,clean_up
                 )
             
 
-        if simulation_techniques and attack_chain_file  =='no' and clean_up == 'yes':
+        if simulation_techniques  and clean_up == 'yes':
             self.simulate_techniques(simulation_techniques,clean_up
                 )
      
