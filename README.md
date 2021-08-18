@@ -49,10 +49,10 @@ Attack Range Cloud supports different actions:
 ```
 
 ### Perform Cloud Attack Simulation
-[Work in Progress]
 - Perform Cloud Attack Simulation by Mitre technique
 ```
-python attack_range_cloud.py simulate -st T1136.003
+python attack_range_cloud.py simulate -st T1098 --clean_up yes
+python attack_range_cloud.py simulate -st T1098 --clean_up no
 ```
 
 ### Destroy Attack Range Cloud
