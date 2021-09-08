@@ -168,8 +168,7 @@ def main(args):
     
     simulate_parser.add_argument("-cu", "--clean_up", required=False, type=str, default="",
                                  help="cleanup simulations")
-    # simulate_parser.add_argument("-acf", "--attack_chain_file", required=False,
-    #                              help="attack chain file")
+    
     simulate_parser.set_defaults(func=simulate)
 
     # Dump  Arguments
