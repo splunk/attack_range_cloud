@@ -26,7 +26,7 @@ class IEnvironmentController(ABC):
         pass
 
     @abstractmethod
-    def simulate(self, simulation_techniques,attack_chain_file,clean_up):
+    def simulate(self, simulation_techniques,clean_up):
         pass
 
     @abstractmethod

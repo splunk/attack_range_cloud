@@ -22,7 +22,7 @@ instance_type_ec2 = t2.2xlarge
 # instance type for the aws ec2 instances
 
 [range_settings]
-key_name = cloud-attack-range
+key_name = attack-range-cloud
 # Specify the name of the EC2 key pair name
 # This is only needed for modes: terraform and packer
 
@@ -89,7 +89,7 @@ splunk_security_essentials_app = splunk-security-essentials_312.tgz
 
 splunk_aws_app = splunk-add-on-for-amazon-web-services_500.tgz
 # Specify the Splunk AWS App
-# Will be only installed when cloud_attack_range=1
+# Will be only installed when attack_range_cloud=1
 
 
 [phantom_settings]
@@ -140,7 +140,6 @@ splunk_server_private_ip = 10.0.1.12
 # for mode terraform should be in subnet: 10.0.1.0/24
 
 
-
 [phantom_server]
 # customize the phantom server
 
@@ -150,7 +149,7 @@ phantom_server_private_ip = 10.0.1.13
 
 
 [cloudtrail]
-sqs_queue_url = https://sqs.us-west-2.amazonaws.com/591511147606/cloudtrail-cloud-attack-range
+sqs_queue_url = 
 # specify the sqs queue for the cloudtrail logs. Cloudtrail needs to be enabled and configured manually.
 # more information can be found here: https://docs.splunk.com/Documentation/AddOns/released/AWS/CloudTrail
 

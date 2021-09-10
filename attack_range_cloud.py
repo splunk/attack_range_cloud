@@ -22,14 +22,14 @@ starting program loaded for B1 battle droid
           .-~~~-.
   .- ~ ~-(       )_ _
  /                     ~ -.
-|   Cloud Attack Range     \
- \                         .'
-   ~- . _____________ . -~
+|   Attack Range Cloud     |
+ '                        ,
+  ` ~- . _____________ . `
           ||/__'`.
           |//()'-.:
           |-.||
           |o(o)
-          |||\\\  .==._    
+          ||| .==._    
           |||(o)==::'
            `|T  ""
             ()
@@ -60,9 +60,6 @@ starting program loaded for B1 battle droid
     log = logger.setup_logging(config['log_path'], config['log_level'])
     log.info("INIT - attack_range v" + str(VERSION))
 
-    # if ARG_VERSION:
-    #     log.info("version: {0}".format(VERSION))
-    #     sys.exit(0)
 
     return TerraformController(config, log), config, log
 
@@ -77,18 +74,16 @@ def show(args):
 def simulate(args):
     controller, config, _ = init(args)
     simulation_techniques = args.simulation_technique
-    attack_chain_file = args.attack_chain_file
     clean_up = args.clean_up
 
     # lets give CLI priority over config file for pre-configured techniques
     if not simulation_techniques:
         simulation_techniques = 'no'
-    if not attack_chain_file:
-        attack_chain_file = 'no'
+    
     if not clean_up:
         clean_up = 'no'
 
-    return controller.simulate(simulation_techniques,attack_chain_file,clean_up)
+    return controller.simulate(simulation_techniques,clean_up)
 
 
 def dump(args):
@@ -128,8 +123,8 @@ def test(args):
 def main(args):
     # grab arguments
     parser = argparse.ArgumentParser(
-        description="Use `cloud_attack_range.py action -h` to get help with any Attack Range action")
-    parser.add_argument("-c", "--config", required=False, default="cloud_attack_range.conf",
+        description="Use `attack_range_cloud.py action -h` to get help with any Attack Range action")
+    parser.add_argument("-c", "--config", required=False, default="attack_range_cloud.conf",
                         help="path to the configuration file of the attack range")
     parser.add_argument("-v", "--version", default=False, action="version", version="version: {0}".format(VERSION),
                         help="shows current attack_range version")
@@ -138,11 +133,13 @@ def main(args):
     actions_parser = parser.add_subparsers(title="Attack Range actions", dest="action")
     configure_parser = actions_parser.add_parser("configure", help="configure a new attack range")
     build_parser = actions_parser.add_parser("build", help="Builds attack range instances")
-    #simulate_parser = actions_parser.add_parser("simulate", help="Simulates attack techniques")
+    simulate_parser = actions_parser.add_parser("simulate", help="Simulates attack techniques")
     destroy_parser = actions_parser.add_parser("destroy", help="destroy attack range instances")
     stop_parser = actions_parser.add_parser("stop", help="stops attack range instances")
     resume_parser = actions_parser.add_parser("resume", help="resumes previously stopped attack range instances")
     show_parser = actions_parser.add_parser("show", help="list machines")
+
+    # Use attack range to use these functions
     # test_parser = actions_parser.add_parser("test")
     # dump_parser = actions_parser.add_parser("dump", help="dump locally logs from attack range instances")
     # replay_parser = actions_parser.add_parser("replay", help="replay dumps into the Splunk Enterprise server")
@@ -160,39 +157,26 @@ def main(args):
     resume_parser.set_defaults(func=resume)
 
     # Configure arguments
-    configure_parser.add_argument("-c", "--config", required=False, type=str, default='cloud_attack_range.conf',
+    configure_parser.add_argument("-c", "--config", required=False, type=str, default='attack_range_cloud.conf',
                                     help="provide path to write configuration to")
     configure_parser.set_defaults(func=configure)
 
     # Simulation arguments
-    # simulate_parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
-    #                              help="Specify an single atomic for AWS "
-    #                                   "attack_range, example:  T1136.003, requires --simulation flag")
-    # simulate_parser.add_argument("-acf", "--attack_chain_file", required=False,
-    #                              help="attack chain file")
+    simulate_parser.add_argument("-st", "--simulation_technique", required=False, type=str, default="",
+                                 help="Specify an single atomic for AWS "
+                                      "attack_range, example:  T1098, requires --simulation flag")
     
-    # simulate_parser.add_argument("-cu", "--clean_up", required=False, type=str, default="",
-    #                              help="cleanup simulations")
-    # simulate_parser.set_defaults(func=simulate)
+    simulate_parser.add_argument("-cu", "--clean_up", required=False, type=str, default="",
+                                 help="cleanup simulations")
+    
+    simulate_parser.set_defaults(func=simulate)
 
-    # # Dump  Arguments
+    # Dump  Arguments
     # dump_parser.add_argument("-dn", "--dump_name", required=True,
     #                          help="name for the dumped attack data")
     # dump_parser.add_argument("--last-sim", required=False, action='store_true',
     #                          help="overrides dumps.yml time and dumps from the start of previous simulation")
     # dump_parser.set_defaults(func=dump)
-
-    # # Replay Arguments
-    # replay_parser.add_argument("-dn", "--dump_name", required=True,
-    #                            help="name for the dumped attack data")
-    # replay_parser.add_argument("--dump", required=False,
-    #                     help="name of the dump as defined in attack_data/dumps.yml")
-    # replay_parser.set_defaults(func=replay)
-
-    # # Test Arguments
-    # test_parser.add_argument("-tf", "--test_file", required=True,
-    #                          type=str, default="", help='test file for test command')
-    # test_parser.set_defaults(func=test)
 
     # Show arguments
     show_parser.add_argument("-m", "--machines", required=False, default=False,

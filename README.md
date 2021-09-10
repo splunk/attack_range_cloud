@@ -1,23 +1,23 @@
-# Splunk Cloud Attack Range ⚔️
+# Splunk Attack Range Cloud ⚔️
 
 ## Purpose 🛡
-The Cloud Attack Range is a detection development platform, which solves three main challenges in detection engineering. First, the user is able to build quickly a small lab infrastructure as close as possible to a cloud environment. Second, the Attack Range performs attack simulation using different engines such as [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team) in order to generate real attack data.
+The Attack Range Cloud is a detection development platform, which solves three main challenges in detection engineering. First, the user is able to build quickly a small lab infrastructure as close as possible to a cloud environment. Second, the Attack Range performs attack simulation using different engines such as [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team) in order to generate real attack data.
 ## Building 👷‍♂️
 
-Cloud Attack Range can be built is currently:
+Attack Range Cloud can be built is currently:
 
 - **cloud-only**, Specifically simulate attacks against AWS
 
 
 ## Architecture 🏯
-The Cloud Attack Range consists of:
+The Attack Range Cloud consists of:
 - pre-configured Splunk server with AWS Cloudtrail logs and Kubernetes logs
 - pre-configured Phantom server
 - AWS Elastic Kubernetes Service with a Wordpress app and [Splunk Connect for Kubernetes](https://github.com/splunk/splunk-connect-for-kubernetes)
 
 - integrated [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team) cloud attacks
 
-![Architecture](docs/cloud_attack_range_architecture.png)
+![Architecture](docs/attack_range_cloud_architecture.png)
 
 ### Logging
 The following log sources are collected from the machines:
@@ -27,50 +27,50 @@ The following log sources are collected from the machines:
 - AWS Elastic Kubernetes Service logs (```index=aws sourcetype=aws:cloudwatchlogs```)
 
 ## Running 🏃‍♀️
-Follow [Getting Started](https://github.com/splunk/attack_range_cloud/wiki/Configure-Cloud-Attack-Range) to configure Cloud Attack Range.  
-Cloud Attack Range supports different actions:
-- Build Cloud Attack Range
+Follow [Getting Started](https://github.com/splunk/attack_range_cloud/wiki/Configure-Cloud-Attack-Range) to configure Attack Range Cloud.  
+Attack Range Cloud supports different actions:
+- Build Attack Range Cloud
 - Perform Cloud Attack Simulation
-- Destroy Cloud Attack Range
-- Stop Cloud Attack Range
-- Resume Cloud Attack Range
+- Destroy Attack Range Cloud
+- Stop Attack Range Cloud
+- Resume Attack Range Cloud
 
-### Cloud Attack Range Commands
-- Configure your Cloud Attack Range .conf
+### Attack Range Cloud Commands
+- Configure your Attack Range Cloud .conf
 ```
-- [x] python cloud_attack_range.py configure
+- [x] python attack_range_cloud.py configure
 ```
 
-### Cloud Attack Range Commands
-- Build Cloud Attack Range
+### Attack Range Cloud Commands
+- Build Attack Range Cloud
 ```
-- [x] python cloud_attack_range.py build
+- [x] python attack_range_cloud.py build
 
 ```
 
 ### Perform Cloud Attack Simulation
-[Work in Progress]
 - Perform Cloud Attack Simulation by Mitre technique
 ```
-python cloud_attack_range.py simulate -st T1136.003
+python attack_range_cloud.py simulate -st T1098 --clean_up yes
+python attack_range_cloud.py simulate -st T1098 --clean_up no
 ```
 
-### Destroy Cloud Attack Range
-- Destroy Cloud Attack Range
+### Destroy Attack Range Cloud
+- Destroy Attack Range Cloud
 ```
-python cloud_attack_range.py destroy
-```
-
-### Stop Cloud Attack Range
-- Stop Cloud Attack Range
-```
-python cloud_attack_range.py stop
+python attack_range_cloud.py destroy
 ```
 
-### Resume Cloud Attack Range
-- Resume Cloud Attack Range
+### Stop Attack Range Cloud
+- Stop Attack Range Cloud
 ```
-python cloud_attack_range.py resume
+python attack_range_cloud.py stop
+```
+
+### Resume Attack Range Cloud
+- Resume Attack Range Cloud
+```
+python attack_range_cloud.py resume
 ```
 
 ## Features 💍
@@ -83,13 +83,13 @@ python cloud_attack_range.py resume
 
 - [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/)
   * [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) is a premium security solution requiring a paid license.
-  * Enable or disable [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) in [cloud_attack_range.conf](cloud_attack_range.conf)
+  * Enable or disable [Splunk Enterprise Security](https://splunkbase.splunk.com/app/263/) in [attack_range_cloud.conf](attack_range_cloud.conf)
   * Purchase a license, download it and store it in the apps folder to use it.
 
 - [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html)
   * [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) is a Security Orchestration and Automation platform
   * For a free development license (100 actions per day) register [here](https://my.phantom.us/login/?next=/)
-  * Enable or disable [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [cloud_attack_range.conf](cloud_attack_range.conf)
+  * Enable or disable [Splunk Phantom](https://www.splunk.com/en_us/software/splunk-security-orchestration-and-automation.html) in [attack_range_cloud.conf](attack_range_cloud.conf)
 
 -  [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
   * Attack Simulation with  [Atomic Red Team](https://github.com/redcanaryco/atomic-red-team)
@@ -103,7 +103,7 @@ If you have questions or need support, you can:
 
 * Post a question to [Splunk Answers](http://answers.splunk.com)
 * Join the [#security-research](https://splunk-usergroups.slack.com/archives/C1S5BEF38) room in the [Splunk Slack channel](http://splunk-usergroups.slack.com)
-* If you are a Splunk Enterprise customer with a valid support entitlement contract and have a Splunk-related question, you can also open a support case on the https://www.splunk.com/ support portal
+* If you are a Splunk Enterprise customer with a valid support entitlement contract and have a Splunk-related question, you can also open a support case on the https://www.splunk.com/ support portalxx`
 
 
 ## Author
